@@ -5,3 +5,6 @@ dist/
 .env*
 # local reference material (e.g. iFixit teardown photos) — not published
 reference/
+
+# devlog screenshots
+devlog/shots/
