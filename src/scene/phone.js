@@ -134,12 +134,17 @@ export function logoMesh(name, height, mat) {
 const BEZELS = {
   default: [3.8, 16, 12],
   iphone13: [1.9, 1.9, 1.9],
+  iphone11: [4.2, 4.2, 4.2], // LCD: thicker even bezel than the OLED 13
+  iphone6p: [4.65, 18, 18],
+  iphone7p: [4.7, 18, 18],
   redmi: [3.8, 16, 12],
   slvr: [9.5, 12, 64], // 1.9" screen up top, etched metal keypad below
   karbonn: [5.8, 18, 23],
   motoe: [5.65, 14.5, 15.1],
 };
-const CORNER = { iphone13: 0.17, redmi: 0.12, slvr: 0.1, karbonn: 0.16, motoe: 0.17 };
+const CORNER = { iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.1, karbonn: 0.16, motoe: 0.17 };
+// full-screen designs: notch in the lock screen and a screen that follows the body's corners
+const NOTCHED = new Set(['iphone13', 'iphone11']);
 
 function canvasTexture(wpx, hpx, draw) {
   const c = document.createElement('canvas');
@@ -251,7 +256,20 @@ function addFrontDetails(front, look, W, H, { sw, sh, bezelTop, bezelBottom, z }
   const zt = z + 0.03 * MM;
   const dark = new THREE.MeshStandardMaterial({ color: '#0A0A0B', roughness: 0.6 });
   const chrome = new THREE.MeshStandardMaterial({ color: '#C9CCD0', metalness: 1, roughness: 0.25 });
-  if (layout === 'redmi') {
+  if (layout === 'iphone6p' || layout === 'iphone7p') {
+    // earpiece slot, front camera, and the round home button
+    const ear = new THREE.Mesh(new RoundedBoxGeometry(W * 0.14, 1.3 * MM, 0.2 * MM, 2, 0.1 * MM), dark);
+    ear.position.set(0, H / 2 - bezelTop * 0.5, z);
+    const cam = new THREE.Mesh(new THREE.CircleGeometry(1.1 * MM, 24), dark);
+    cam.position.set(-W * 0.14, H / 2 - bezelTop * 0.5, zt);
+    const hb = -H / 2 + bezelBottom * 0.5, hr = 5.5 * MM;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(hr, 0.35 * MM, 12, 48), new THREE.MeshStandardMaterial({ color: '#7A7D82', metalness: 1, roughness: 0.3 }));
+    ring.position.set(0, hb, z);
+    const btnFace = new THREE.Mesh(new THREE.CircleGeometry(hr - 0.2 * MM, 48), new THREE.MeshPhysicalMaterial({ color: '#101113', roughness: 0.25, clearcoat: 0.5 }));
+    btnFace.position.set(0, hb, z - 0.1 * MM);
+    front.add(ear, cam, ring, btnFace);
+    if (layout === 'iphone7p') ring.material.color.set('#1B1C1E'); // 7 Plus: solid-state button, no steel ring look
+  } else if (layout === 'redmi') {
     const spk = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.16, 0.9 * MM), new THREE.MeshStandardMaterial({ color: '#B8BCC2', roughness: 0.5 }));
     spk.position.set(0, H / 2 - bezelTop / 2, zt);
     front.add(spk);
@@ -310,9 +328,54 @@ function buildBackDetails(phone, W, H, backMat) {
     const fl = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.07, size * 0.07, 0.4 * MM, 24), mats.flash);
     fl.rotation.x = Math.PI / 2; fl.position.set(bx - size * 0.22, by + size * 0.24, -1.25 * MM);
     g.add(l1, l2, fl);
-    const logo = logoMesh('apple', 0.0135, new THREE.MeshStandardMaterial({ color: '#A8182C', metalness: 1, roughness: 0.18 }));
+    const logo = logoMesh('apple', 0.0135 * (W / 0.0642), new THREE.MeshStandardMaterial({ color: phone.look?.logo ?? '#A8182C', metalness: 1, roughness: 0.18 }));
     logo.position.set(0, 0.004, -0.08 * MM);
     g.add(logo);
+  } else if (layout === 'iphone11') {
+    // square glass plateau, two lenses stacked on the left (from behind), flash top-right
+    const size = 0.46 * W;
+    const bump = new THREE.Mesh(slab(size, size, size * 0.22, 1.1 * MM, 0.3 * MM), backMat);
+    const bx = W / 2 - size / 2 - 0.07 * W, by = H / 2 - size / 2 - 0.07 * W;
+    bump.position.set(bx, by, -0.55 * MM);
+    const r = size * 0.17;
+    const l1 = lens(r, 1.6 * MM); l1.position.set(bx + size * 0.2, by + size * 0.2, -1.3 * MM);
+    const l2 = lens(r, 1.6 * MM); l2.position.set(bx + size * 0.2, by - size * 0.2, -1.3 * MM);
+    const fl = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.07, size * 0.07, 0.4 * MM, 24), mats.flash);
+    fl.rotation.x = Math.PI / 2; fl.position.set(bx - size * 0.22, by + size * 0.22, -1.2 * MM);
+    const logo = logoMesh('apple', 0.016, new THREE.MeshStandardMaterial({ color: phone.look?.logo ?? '#3A3B3F', metalness: 1, roughness: 0.2 }));
+    logo.position.set(0, -0.004, -0.08 * MM);
+    g.add(bump, l1, l2, fl, logo);
+  } else if (layout === 'iphone6p' || layout === 'iphone7p') {
+    const is7 = layout === 'iphone7p';
+    const r = 0.06 * W;
+    const cx = W / 2 - 0.13 * W, cy = H / 2 - 0.085 * W;
+    if (is7) {
+      // dual-camera pill
+      const pill = new THREE.Mesh(slab(r * 5.2, r * 2.6, r * 1.3, 1.0 * MM, 0.25 * MM), backMat);
+      pill.position.set(cx - r * 1.3, cy, -0.4 * MM);
+      const l1 = lens(r, 1.4 * MM); l1.position.set(cx, cy, -1.0 * MM);
+      const l2 = lens(r, 1.4 * MM); l2.position.set(cx - r * 2.6, cy, -1.0 * MM);
+      g.add(pill, l1, l2);
+    } else {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.15, 0.45 * MM, 12, 40), new THREE.MeshStandardMaterial({ color: '#8C8F94', metalness: 1, roughness: 0.25 }));
+      ring.position.set(cx, cy, -0.5 * MM);
+      const l = lens(r, 1.2 * MM); l.position.set(cx, cy, -0.8 * MM);
+      g.add(ring, l);
+    }
+    const fl = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55, r * 0.55, 0.3 * MM, 24), mats.flash);
+    fl.rotation.x = Math.PI / 2; fl.position.set(cx - r * (is7 ? 5.2 : 2.6), cy, -0.2 * MM);
+    // antenna lines across the aluminium back
+    const bandMat = new THREE.MeshStandardMaterial({ color: is7 ? '#232427' : '#45474B', roughness: 0.6 });
+    for (const y of [H / 2 - 0.1 * H, -H / 2 + 0.1 * H]) {
+      for (const dy of is7 ? [0] : [-0.9 * MM, 0.9 * MM]) {
+        const band = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.99, 0.5 * MM), bandMat);
+        band.rotation.y = Math.PI; band.position.set(0, (is7 ? (y > 0 ? H / 2 - 0.03 * H : -H / 2 + 0.03 * H) : y) + dy, -0.04 * MM);
+        g.add(band);
+      }
+    }
+    const logo = logoMesh('apple', 0.019, new THREE.MeshStandardMaterial({ color: is7 ? '#18191B' : '#C9CBCE', metalness: 1, roughness: is7 ? 0.08 : 0.12 }));
+    logo.position.set(0, 0.006, -0.08 * MM);
+    g.add(fl, logo);
   } else if (layout === 'redmi') {
     const r = 0.075 * W;
     const cam = lens(r, 1.0 * MM); cam.position.set(0, H / 2 - 0.13 * H, -0.5 * MM);
@@ -463,7 +526,7 @@ function addButtons(root, layout, W, H, D, mat) {
     root.add(m);
   };
   const L = -W / 2 - 0.25 * MM, R = W / 2 + 0.25 * MM;
-  if (layout === 'iphone13') {
+  if (layout === 'iphone13' || layout === 'iphone11' || layout === 'iphone6p' || layout === 'iphone7p') {
     btn(4.5 * MM, L, H / 2 - 17 * MM); // ring/silent switch
     btn(9 * MM, L, H / 2 - 29 * MM); // volume up
     btn(9 * MM, L, H / 2 - 41 * MM); // volume down
@@ -536,9 +599,9 @@ export function buildPhone(phone, { simple = false } = {}) {
   const bz = BEZELS[look.backLayout] ?? BEZELS.default;
   const bezelSide = bz[0] * MM, bezelTop = bz[1] * MM, bezelBottom = bz[2] * MM;
   const sw = W - bezelSide * 2, sh = H - bezelTop - bezelBottom;
-  const screenTex = simple ? null : look.backLayout === 'slvr' ? featureScreenTexture(phone, sh / sw) : lockScreenTexture(phone, sh / sw, look.backLayout === 'iphone13');
+  const screenTex = simple ? null : look.backLayout === 'slvr' ? featureScreenTexture(phone, sh / sw) : lockScreenTexture(phone, sh / sw, NOTCHED.has(look.backLayout));
   const screenMat = new THREE.MeshBasicMaterial({ map: screenTex, color: simple ? '#0c0d10' : '#e4e4e4', toneMapped: false });
-  const screenGeo = flatRect(sw, sh, look.backLayout === 'iphone13' ? r - 1.9 * MM : 0.6 * MM);
+  const screenGeo = flatRect(sw, sh, NOTCHED.has(look.backLayout) ? r - bz[0] * MM : 0.6 * MM);
   const screen = new THREE.Mesh(screenGeo, screenMat);
   screen.position.set(0, (bezelBottom - bezelTop) / 2, glassT / 2 + 0.02 * MM);
   front.add(screen);
@@ -578,7 +641,7 @@ export function buildPhone(phone, { simple = false } = {}) {
   let setBatteryOut = null;
   if (phone.teardown && !simple) {
     openSide = phone.teardown.openFrom === 'back' ? -1 : 1;
-    if (['redmi', 'iphone13', 'slvr', 'karbonn', 'motoe'].includes(look.backLayout)) {
+    if (['redmi', 'iphone13', 'iphone11', 'iphone6p', 'iphone7p', 'slvr', 'karbonn', 'motoe'].includes(look.backLayout)) {
       // detailed interior modelled on the iFixit teardown photos
       const inside = buildDetailedInterior(phone, W, H, D, openSide);
       interior = inside.group;

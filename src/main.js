@@ -102,7 +102,7 @@ const workItems = data.work.map((p, k) => {
   placeOnTable(stand, WORK_TABLE.center, WORK_TABLE.height, WORK_TABLE.standRadius, angle);
   neutralMetals(stand);
   scene.add(stand);
-  const model = buildPhone({ ...p, look: { frame: p.color.hex, back: p.color.hex, front: '#0b0b0c', backRoughness: 0.2 } }, { simple: true });
+  const model = buildPhone(p);
   model.root.userData.work = k;
   neutralMetals(model.root, true);
   stand.userData.mount.add(model.root);
@@ -183,6 +183,9 @@ function renderDirectory() {
       <span class="nm">${it.phone.name}${en < 0 ? '<span class="soon">soon</span>' : ''}</span>
     </button></li>`;
   }).join('');
+  // on phones the list is one horizontal strip, so the work table gets a chip at its end
+  const workActive = state.table === 'work';
+  dirPersonal.insertAdjacentHTML('beforeend', `<li class="work-chip ${workActive ? 'active' : ''}"><button type="button" data-work="${state.workCur}">Work phones</button></li>`);
   dirWork.innerHTML = workItems.map((w, k) => {
     const active = state.table === 'work' && k === state.workCur;
     return `<li class="${active ? 'active' : ''}"><button type="button" data-work="${k}" ${active ? 'aria-current="true"' : ''}>${w.phone.name}</button></li>`;
@@ -207,7 +210,7 @@ specsEl.addEventListener('click', (e) => {
 
 function renderCredit() {
   const el = document.getElementById('credit-text');
-  const p = state.table === 'main' ? enabled[state.cur]?.phone : null;
+  const p = currentItem()?.phone;
   const c = p?.teardown?.photoCredit;
   el.innerHTML = c
     ? `Interior modelled on iFixit's <a href="${c.url}" target="_blank" rel="noopener">${c.title}</a>`
@@ -225,48 +228,49 @@ function renderSpecs() {
         <h2 class="spec-name">The whole table</h2>
         <p class="spec-note">${personal.length} phones at true relative size, plus an empty stand for the next one.</p>`;
     } else if (state.table === 'work') {
-      const w = workItems[state.workCur].phone;
-      specsEl.innerHTML = `
-        <div class="spec-top"><span class="maker">Apple</span><span class="os">Work phone</span></div>
-        <div><h2 class="spec-name">${w.name}</h2>
-        <div class="spec-sub"><span class="swatch" style="--c:${w.color.hex}"></span>${w.color.name}</div></div>
-        <div class="spec-rows">
-          <div class="spec-row"><div class="spec-head"><span class="spec-label">Screen</span><span class="spec-val">${w.screenInches}″</span></div></div>
-          <div class="spec-row"><div class="spec-head"><span class="spec-label">Storage</span><span class="spec-val">${w.storageGb} GB</span></div></div>
-        </div>
-        <div class="spec-foot">Company phones — shown for context, no teardown.</div>`;
+      specsEl.innerHTML = phoneSpecsHtml(workItems[state.workCur].phone, data.work, 'Company phone');
+      animateBars();
+      bindSpecHover();
     } else if (enabled[state.cur].placeholder) {
       specsEl.innerHTML = `
         <div class="eyebrow">Empty stand</div>
         <h2 class="spec-name">Next phone</h2>
         <p class="spec-note">Kept free for whatever comes after the ${enabled[newest].phone.name}.</p>`;
     } else {
-      const p = enabled[state.cur].phone;
-      specsEl.innerHTML = `
-        <div class="spec-top">
-          <span class="maker">${p.logos ? logoSvg(p.logos.maker, { size: 22, label: p.maker }) : ''}<span>${p.maker}</span></span>
-          <span class="os">${p.logos ? logoSvg(p.logos.os, { size: 22, label: p.os.name }) : ''}<span>${p.logos?.os === 'ios' ? `<b>${p.os.version}</b>` : `<b>${p.os.name}</b>${p.os.version}`}</span></span>
-        </div>
-        <div>
-          <h2 class="spec-name">${p.name} <button type="button" class="spec-toggle" data-toggle aria-expanded="${!specsCollapsed}">${specsCollapsed ? 'Specs' : 'Hide'}</button></h2>
-          <div class="spec-sub"><span class="swatch" style="--c:${p.color.hex}"></span>${p.color.name} · ${p.owned.range ?? p.owned.label} · ${p.screenInches}″</div>
-          ${p.tags?.length ? `<div class="tags">${p.tags.map((t) => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-        </div>
-        <div class="spec-rows">${specRowsHtml(p, personal)}</div>
-        <div class="spec-foot">Compared with the phone before it · bars to scale</div>
-        ${p.details ? `<details class="more"><summary>Full specs${p.source ? ` <span>from ${p.source.name}</span>` : ''}</summary>
-          <dl>${p.details.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
-          ${p.source ? `<a href="${p.source.url}" target="_blank" rel="noopener">View on ${p.source.name} ↗</a>` : ''}
-        </details>` : ''}`;
-      // animate bars from zero
-      const bars = specsEl.querySelectorAll('.track b');
-      const widths = [...bars].map((b) => b.style.width);
-      bars.forEach((b) => { b.style.transition = 'none'; b.style.width = '0'; });
-      requestAnimationFrame(() => requestAnimationFrame(() => bars.forEach((b, i) => { b.style.transition = ''; b.style.width = widths[i]; })));
+      specsEl.innerHTML = phoneSpecsHtml(enabled[state.cur].phone, personal);
+      animateBars();
       bindSpecHover();
     }
     specsEl.classList.remove('swap');
   }, reduceMotion ? 0 : 180);
+}
+
+function phoneSpecsHtml(p, list, eyebrow = '') {
+  return `
+    <div class="spec-top">
+      <span class="maker">${p.logos ? logoSvg(p.logos.maker, { size: 22, label: p.maker }) : ''}<span>${p.maker}</span></span>
+      <span class="os">${p.logos ? logoSvg(p.logos.os, { size: 22, label: p.os.name }) : ''}<span>${p.logos?.os === 'ios' ? `<b>${p.os.version}</b>` : `<b>${p.os.name}</b>${p.os.version}`}</span></span>
+    </div>
+    <div>
+      ${eyebrow ? `<div class="eyebrow">${eyebrow}</div>` : ''}
+      <h2 class="spec-name">${p.name} <button type="button" class="spec-toggle" data-toggle aria-expanded="${!specsCollapsed}">${specsCollapsed ? 'Specs' : 'Hide'}</button></h2>
+      <div class="spec-sub"><span class="swatch" style="--c:${p.color.hex}"></span>${p.color.name}${p.owned ? ` · ${p.owned.range ?? p.owned.label}` : ''} · ${p.screenInches}″</div>
+      ${p.tags?.length ? `<div class="tags">${p.tags.map((t) => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+    </div>
+    <div class="spec-rows">${specRowsHtml(p, list)}</div>
+    <div class="spec-foot">Compared with the ${eyebrow ? 'company phone' : 'phone'} before it · bars to scale</div>
+    ${p.details ? `<details class="more"><summary>Full specs${p.source ? ` <span>from ${p.source.name}</span>` : ''}</summary>
+      <dl>${p.details.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+      ${p.source ? `<a href="${p.source.url}" target="_blank" rel="noopener">View on ${p.source.name} ↗</a>` : ''}
+    </details>` : ''}`;
+}
+
+// animate spec bars from zero
+function animateBars() {
+  const bars = specsEl.querySelectorAll('.track b');
+  const widths = [...bars].map((b) => b.style.width);
+  bars.forEach((b) => { b.style.transition = 'none'; b.style.width = '0'; });
+  requestAnimationFrame(() => requestAnimationFrame(() => bars.forEach((b, i) => { b.style.transition = ''; b.style.width = widths[i]; })));
 }
 
 function btn(label, attrs = '', cls = '', icon = '', iconAfter = false) {
@@ -278,20 +282,21 @@ function renderControls() {
   let html = '';
   if (m === 'browse' && state.table === 'main' && enabled[state.cur].placeholder) {
     const prev = enabled[state.cur - 1];
-    html += btn(prev.phone.name, 'data-act="prev" aria-label="Previous phone"', '', ICON.left);
+    html += btn(prev.phone.name, 'data-act="prev" aria-label="Previous phone"', 'nav', ICON.left);
     html += btn('View from above', 'data-act="overhead"', 'primary', ICON.right, true);
     hint('');
   } else if (m === 'browse' && state.table === 'main') {
     const prev = enabled[state.cur - 1];
     const next = enabled[state.cur + 1];
-    html += prev ? btn(prev.phone.name, 'data-act="prev" aria-label="Previous phone"', '', ICON.left) : '';
+    html += prev ? btn(prev.phone.name, 'data-act="prev" aria-label="Previous phone"', 'nav', ICON.left) : '';
     html += btn('Pick it up', 'data-act="pick"', 'primary', ICON.up, true);
-    html += next ? btn(next.phone.name, 'data-act="next" aria-label="Next phone"', '', ICON.right, true) : btn('View from above', 'data-act="overhead"', '', ICON.right, true);
+    html += next ? btn(next.phone.name, 'data-act="next" aria-label="Next phone"', 'nav', ICON.right, true) : btn('View from above', 'data-act="overhead"', '', ICON.right, true);
     hint('');
   } else if (m === 'browse' && state.table === 'work') {
     html += btn('', 'data-act="wprev" aria-label="Previous work phone"', 'icon', ICON.left);
-    html += btn('Back to my phones', 'data-act="home"', 'primary');
+    html += btn('Pick it up', 'data-act="pick"', 'primary', ICON.up, true);
     html += btn('', 'data-act="wnext" aria-label="Next work phone"', 'icon', ICON.right);
+    html += btn('My phones', 'data-act="home"', 'ghost');
     hint('');
   } else if (m === 'held') {
     html += btn('Put it back', 'data-act="putback"');
@@ -399,9 +404,9 @@ function tweenPose(obj, pos, q, duration, onComplete) {
 }
 
 function pickUp() {
-  if (state.mode !== 'browse' || state.table !== 'main') return;
-  const it = enabled[state.cur];
-  if (!it.model) return;
+  if (state.mode !== 'browse') return;
+  const it = currentItem();
+  if (!it?.model) return;
   const { root } = it.model;
   scene.attach(root);
   state.held = { item: it, model: it.model };
@@ -528,9 +533,12 @@ function buildHotspots() {
 }
 function clearHotspots() { hotspotsEl.innerHTML = ''; hotspots = []; }
 
+const isNarrow = () => matchMedia('(max-width: 900px)').matches;
+
 function highlight(spec, el = null, part = null) {
   specsEl.querySelectorAll('.spec-row').forEach((r) => r.classList.toggle('hl', !!spec && r.dataset.spec === spec));
   hotspots.forEach((h) => h.el.classList.toggle('active', !!el ? h.el === el : (!!spec && h.el.dataset.spec === spec)));
+  if (part && el && isNarrow()) toast(part.label ?? part.id, 2500);
   if (part && state.held) trackOnce(`hs:${state.held.item.phone.id}:${part.id}`, 'view_part', { phone_id: state.held.item.phone.id, part: part.id });
 }
 
@@ -629,7 +637,8 @@ function onClick(x, y) {
   if (!o) return;
   if (o.userData.work != null) {
     if (state.mode === 'overhead') state.mode = 'browse';
-    goWork(o.userData.work, 'click');
+    if (state.table === 'work' && o.userData.work === state.workCur && state.mode === 'browse') pickUp();
+    else goWork(o.userData.work, 'click');
     return;
   }
   const idx = enabled.findIndex((it) => (it.model?.root ?? it.stand) === o);
@@ -672,6 +681,7 @@ canvas.addEventListener('touchend', (e) => {
 const toastEl = document.getElementById('toast');
 let toastTimer = 0;
 function toast(text, ms = 3000) {
+  toastEl.classList.remove('intro');
   toastEl.textContent = text;
   toastEl.hidden = false;
   clearTimeout(toastTimer);
@@ -707,7 +717,9 @@ addEventListener('keydown', (e) => {
       track('arrow_leave_phone', { phone_id: state.held.item.phone.id, direction: dir > 0 ? 'next' : 'previous' });
     } else {
       armed = { dir, until: now + 3000 };
-      const target = dir > 0 ? enabled[state.cur + 1]?.phone.name ?? 'the view from above' : enabled[state.cur - 1]?.phone.name;
+      const target = state.table === 'work'
+        ? workItems[(state.workCur + dir + workItems.length) % workItems.length].phone.name
+        : dir > 0 ? enabled[state.cur + 1]?.phone.name ?? 'the view from above' : enabled[state.cur - 1]?.phone.name;
       if (!target) { toast('This is the first phone on the table.'); armed = null; return; }
       toast(`Press ${dir > 0 ? '→' : '←'} again to put this phone back and go to ${target}`);
     }
@@ -780,7 +792,30 @@ updateCamera();
 requestAnimationFrame(() => {
   frame();
   setTimeout(() => document.getElementById('loading').classList.add('done'), 300);
+  setTimeout(showIntro, 900);
 });
+
+// A short "how to get around" note on first load; it leaves by itself or on the first interaction.
+function showIntro() {
+  const touch = matchMedia('(pointer: coarse)').matches;
+  const lines = touch
+    ? ['Swipe to move between phones', 'Tap a phone to pick it up', 'Drag to turn it · open it to look inside']
+    : ['← → or scroll to move between phones', 'Click a phone to pick it up', 'Drag to turn it · open it to look inside'];
+  toastEl.classList.add('intro');
+  toastEl.innerHTML = `<b>Welcome to the showroom</b>${lines.map((l) => `<span>${l}</span>`).join('')}`;
+  toastEl.hidden = false;
+  clearTimeout(toastTimer);
+  const hide = () => {
+    toastEl.hidden = true;
+    toastEl.classList.remove('intro');
+    removeEventListener('pointerdown', hide, true);
+    removeEventListener('keydown', hide, true);
+  };
+  toastTimer = setTimeout(hide, 9000);
+  addEventListener('pointerdown', hide, true);
+  addEventListener('keydown', hide, true);
+  track('intro_shown', { input: touch ? 'touch' : 'pointer' });
+}
 track('view_phone', { phone_id: enabled[state.cur].phone.id, phone_name: enabled[state.cur].phone.name, source: 'start' });
 
 // handy for debugging in the console

@@ -386,8 +386,10 @@ export function buildDetailedInterior(phone, W, H, D, side) {
     const pr = partRect('ram'); if (pr) anchor('ram', pr.x, pr.y, Z0 + 1.4 * MM);
     const sr = partRect('storage'); if (sr) anchor('storage', sr.x, sr.y, Z0 + 1.4 * MM);
     const cr = partRect('camera'); if (cr) anchor('camera', cr.x, cr.y, Z0 + 2.6 * MM);
-  } else if (layout === 'iphone13') {
-    // --- iPhone 13 mini, display off (viewed from the front) ---
+  } else if (layout === 'iphone13' || layout === 'iphone11') {
+    // --- iPhone 13 mini / 13 / 11, display off (viewed from the front) ---
+    const [chipName, chipLine = ''] = (phone.specs?.processor?.chip ?? 'A15 Bionic').split(' ');
+    const mah = phone.specs?.batteryMah ?? 2406;
     // logic board runs down the left side
     const board = pcb(0.035, 0.3, 0.32, 0.975, 31);
     // A15 package, exposed
@@ -396,9 +398,9 @@ export function buildDetailedInterior(phone, W, H, D, side) {
     decal(a15, textDecal(a15.w / MM, a15.h / MM, (c, Wp, Hp) => {
       c.fillStyle = '#E4E4E1';
       c.font = `600 ${Wp * 0.2}px system-ui, sans-serif`;
-      c.fillText('A15', Wp * 0.2, Hp * 0.45);
+      c.fillText(chipName, Wp * 0.2, Hp * 0.45);
       c.font = `500 ${Wp * 0.09}px system-ui, sans-serif`;
-      c.fillText('BIONIC', Wp * 0.22, Hp * 0.6);
+      c.fillText(chipLine.toUpperCase(), Wp * 0.22, Hp * 0.6);
       finePrint(c, Wp * 0.2, Hp * 0.72, Wp * 0.6, 2, Hp * 0.06, 'rgba(210,210,206,0.45)', rng(3));
     }), board.top + 0.7 * MM);
     // board shields and connectors
@@ -427,7 +429,7 @@ export function buildDetailedInterior(phone, W, H, D, side) {
       c.fillStyle = '#DCDCD9';
       c.font = `500 ${3.6 * u}px system-ui, sans-serif`;
       c.fillText('Rechargeable Li-ion Battery', 10 * u, Hp * 0.74);
-      c.fillText('2406 mAh · 3.88 V', 10 * u, Hp * 0.74 + 5 * u);
+      c.fillText(`${mah} mAh`, 10 * u, Hp * 0.74 + 5 * u);
       finePrint(c, 10 * u, Hp * 0.74 + 9 * u, 80 * u, 5, 4 * u, 'rgba(220,220,216,0.32)', rng(41));
     }, (b, t) => {
       const logo = logoMesh('apple', 5.5 * MM, new THREE.MeshStandardMaterial({ color: '#DCDCD9', roughness: 0.5 }));
@@ -471,6 +473,69 @@ export function buildDetailedInterior(phone, W, H, D, side) {
     anchor('ram', a15.x, a15.y, board.top + 0.7 * MM);
     const sr = partRect('storage'); if (sr) anchor('storage', sr.x, sr.y, board.top + 0.5 * MM);
     anchor('camera', camBracket.r.x, camBracket.r.y, camBracket.top);
+
+  } else if (layout === 'iphone6p' || layout === 'iphone7p') {
+    // --- iPhone 6 Plus / 7 Plus, display off (viewed from the front) ---
+    // logic board down the right edge, big battery on the left, Lightning + speaker at the bottom
+    const is7 = layout === 'iphone7p';
+    const chip = phone.specs?.processor?.chip ?? 'A8';
+    // these phones have a bare aluminium rear case inside
+    box(R(0.005, 0.005, 0.995, 0.995), 0.12 * MM, M.chassis, Z0 - 0.1 * MM, 0.05 * MM);
+    const mah = phone.specs?.batteryMah ?? 2915;
+    const board = pcb(0.69, 0.28, 0.965, 0.975, is7 ? 71 : 61);
+    const soc = shield(0.71, 0.58, 0.95, 0.76, 0.45 * MM, { holes: 0, seed: is7 ? 72 : 62, mark: chip.toUpperCase() });
+    shield(0.71, 0.4, 0.95, 0.54, 0.4 * MM, { holes: 0, seed: is7 ? 73 : 63, dark: true });
+    shield(0.71, 0.3, 0.95, 0.37, 0.35 * MM, { holes: 0, seed: is7 ? 74 : 64 });
+    for (let i = 0; i < 3; i++) connector(0.72, 0.79 + i * 0.035, 0.83, 0.81 + i * 0.035, board.top);
+    screw(0.71, 0.96, board.top, true); screw(0.94, 0.96, board.top, true); screw(0.71, 0.29, board.top, true);
+    // rear camera(s) at the top right, front camera and earpiece bracket top centre
+    camera(0.86, 0.915, is7 ? 11 : 8, Z0 + Math.min(room, 2.5 * MM), { lenses: is7 ? 2 : 1 });
+    const bracket = shield(0.3, 0.9, 0.62, 0.97, 0.4 * MM, { holes: 3, seed: 65, z: Z0 + 1.1 * MM });
+    camera(0.4, 0.935, 4, Z0 + 1.6 * MM);
+    // battery with pull-tab adhesive
+    const br = partRect('battery') ?? R(0.06, 0.14, 0.66, 0.86);
+    makeBattery(br, (c, Wp, Hp) => {
+      c.fillStyle = '#16171A'; c.fillRect(0, 0, Wp, Hp);
+      const u = Wp / 100;
+      c.fillStyle = '#DCDCD9';
+      c.font = `500 ${4.2 * u}px system-ui, sans-serif`;
+      c.fillText('Li-ion Battery', 10 * u, Hp * 0.62);
+      c.fillText(`${mah} mAh · 3.8 V`, 10 * u, Hp * 0.62 + 6 * u);
+      finePrint(c, 10 * u, Hp * 0.62 + 11 * u, 80 * u, 6, 4.4 * u, 'rgba(220,220,216,0.3)', rng(is7 ? 77 : 67));
+    }, (b, t) => {
+      for (const sx of [-0.25, 0.25]) {
+        const tab = new THREE.Mesh(new THREE.PlaneGeometry(br.w * 0.16, 5 * MM), M.flexBlack);
+        tab.position.set(sx * br.w, -br.h / 2 - 1.8 * MM, -t / 2 + 0.1 * MM);
+        b.add(tab);
+      }
+    });
+    // battery connector flex over to the board
+    flex([[0.62, 0.8, 2.2], [0.68, 0.78, 1.8], [0.74, 0.7, 1.2]], 3, M.flexBlack);
+    // bottom: Lightning port, loudspeaker, and on the 7 Plus a Taptic Engine
+    box(R(0.36, 0.012, 0.64, 0.075), 1.4 * MM, M.shield, Z0, 0.4 * MM);
+    const spk = R(0.68, 0.015, 0.965, 0.12);
+    box(spk, 2.0 * MM, M.shieldDark, Z0, 0.5 * MM);
+    decal(R(0.72, 0.03, 0.93, 0.1), grilleTexture(0.21 * IW / MM, 0.07 * IH / MM), Z0 + 2.0 * MM, { transparent: false, rough: 0.8 });
+    if (is7) {
+      const tap = R(0.06, 0.02, 0.3, 0.1);
+      box(tap, 2.0 * MM, M.plastic, Z0, 0.5 * MM);
+      decal(tap, textDecal(tap.w / MM, tap.h / MM, (c, Wp, Hp) => {
+        c.fillStyle = '#E8E8E4'; c.font = `700 ${Hp * 0.26}px system-ui, sans-serif`;
+        c.fillText('TAPTIC', Wp * 0.18, Hp * 0.46); c.fillText('ENGINE', Wp * 0.18, Hp * 0.78);
+      }), Z0 + 2.0 * MM);
+    } else {
+      // vibration motor, top left
+      const vib = R(0.06, 0.88, 0.22, 0.95);
+      box(vib, 2.0 * MM, M.shieldDark, Z0, 0.6 * MM);
+    }
+    flex([[0.34, 0.06, 1.2], [0.5, 0.11, 1.2], [0.7, 0.14, 1.4]], 2.5, M.flexOrange);
+    screw(0.7, 0.11, Z0 + 2.0 * MM, true); screw(0.94, 0.11, Z0 + 2.0 * MM, true);
+
+    anchor('processor', soc.r.x, soc.r.y, soc.top);
+    anchor('ram', soc.r.x, soc.r.y, soc.top);
+    const sr = partRect('storage'); if (sr) anchor('storage', sr.x, sr.y, Z0 + 1.7 * MM);
+    const cr = partRect('camera'); if (cr) anchor('camera', cr.x, cr.y, Z0 + 2.5 * MM);
+    void bracket;
   }
 
 

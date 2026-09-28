@@ -121,28 +121,56 @@ button { cursor: pointer; }
 .hs .tip { position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap; padding: 4px 8px; border-radius: 6px; background: var(--ink); color: #fff; font-family: var(--mono); font-size: 11px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .hs.active .tip, .hs:hover .tip, .hs:focus-visible .tip { opacity: 1; }
 
-.credits { position: fixed; left: 24px; bottom: 14px; z-index: 5; font-family: var(--mono); font-size: 10px; color: var(--ink-3); max-width: 40vw; }
+.credits { position: fixed; left: 24px; right: 24px; bottom: 14px; z-index: 5; font-family: var(--mono); font-size: 10px; color: var(--ink-3); display: flex; justify-content: space-between; gap: 16px; pointer-events: none; }
+.credits a { color: inherit; pointer-events: auto; }
+.credits #credit-text { max-width: 40vw; }
+.credits .built { white-space: nowrap; }
+.btn.ghost { background: rgba(255,255,255,0.7); }
+.timeline li.work-chip { display: none; }
+
+/* first-load "how to get around" note */
+.toast.intro { width: min(340px, calc(100vw - 32px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 14px 20px; text-align: left; font-size: 13px; line-height: 1.35; }
+.toast.intro b { font-size: 14px; margin-bottom: 2px; }
+.toast.intro span { opacity: 0.85; }
+.toast.intro span::before { content: '· '; opacity: 0.6; }
+.toast[hidden] { display: none !important; }
 
 @media (max-width: 900px) {
-  #directory { left: 12px; right: 12px; top: 64px; width: auto; padding: 8px 10px; }
+  .top { top: 10px; left: 12px; }
+  #directory { left: 12px; right: 12px; top: 58px; width: auto; padding: 6px 8px; }
   #directory .eyebrow, #dir-work { display: none; }
-  .timeline { display: flex; gap: 4px; overflow-x: auto; }
+  .timeline { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .timeline::-webkit-scrollbar { display: none; }
   .timeline::before { display: none; }
-  .timeline li button { grid-template-columns: auto auto; gap: 4px; padding: 4px 8px; min-height: 36px; border-radius: 999px; }
+  .timeline li { flex: none; }
+  .timeline li button { grid-template-columns: auto auto; gap: 4px; padding: 4px 10px; min-height: 36px; border-radius: 999px; }
   .timeline li button .pip { display: none; }
   .timeline li button .nm { white-space: nowrap; }
+  .timeline li button .soon, .timeline li.next .yr { display: none; }
   .timeline li.active button { background: var(--accent-soft); }
-  #specs { left: 12px; right: 12px; top: auto; bottom: 110px; width: auto; padding: 12px 14px; gap: 8px; max-height: 34vh; overflow: auto; }
+  .timeline li.work-chip { display: block; }
+  .timeline li.work-chip button { display: block; font-size: 13px; color: var(--ink-2); border: 1px solid var(--line, rgba(0,0,0,0.1)); }
+
+  /* spec sheet: a bottom sheet above the controls; collapsed shows just the name line */
+  #specs { left: 12px; right: 12px; top: auto; bottom: calc(80px + env(safe-area-inset-bottom)); width: auto; padding: 12px 14px; gap: 8px; max-height: 52vh; overflow: auto; overscroll-behavior: contain; }
   .spec-name { font-size: 20px; display: flex; justify-content: space-between; align-items: center; }
   .spec-toggle { display: inline-flex; font-size: 12px; font-weight: 600; border: 0; border-radius: 999px; padding: 8px 14px; background: var(--accent-soft); color: var(--accent); min-height: 36px; }
-  #specs.collapsed .spec-rows, #specs.collapsed .spec-foot, #specs.collapsed .spec-top { display: none; }
-  .btn.primary .lbl { display: inline; }
-  .controls { bottom: 40px; gap: 6px; }
-  .btn { padding: 0 12px; }
-  .btn .lbl { display: none; }
-  .hint { bottom: 94px; top: auto; }
-  .credits { display: none; }
-  .steps { top: 116px; }
+  #specs.collapsed .spec-rows, #specs.collapsed .spec-foot, #specs.collapsed .spec-top, #specs.collapsed .more, #specs.collapsed .tags { display: none; }
+
+  .controls { bottom: calc(22px + env(safe-area-inset-bottom)); gap: 6px; max-width: calc(100vw - 24px); }
+  .btn { padding: 0 14px; font-size: 13px; }
+  .btn.primary { padding: 0 18px; }
+  .btn.nav { width: 44px; padding: 0; justify-content: center; }
+  .btn.nav .lbl { display: none; }
+
+  .steps { top: 108px; }
+  .steps li { white-space: nowrap; padding: 6px 10px; font-size: 11px; }
+  .hint { top: 146px; bottom: auto; max-width: calc(100vw - 32px); text-align: center; }
+  .toast { top: 108px; }
+  .hs .tip { display: none; } /* a tap shows the part name as a toast instead */
+
+  .credits { left: 12px; right: 12px; bottom: calc(4px + env(safe-area-inset-bottom)); justify-content: center; font-size: 10px; }
+  .credits #credit-text { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

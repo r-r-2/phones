@@ -29,7 +29,7 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 
 | File | Role |
 |---|---|
-| `src/data/phones.json` | All content: `personal` phones (in order), `work` phones, `next` (empty stand). |
+| `src/data/phones.json` | All content: `personal` phones (in order), `work` phones (same shape, compared with each other), `next` (empty stand). |
 | `src/main.js` | Renderer, environment maps, stands/slots, camera rig, state machine (`browse → moving → held → open`, `overhead`), UI panels, input, analytics calls. |
 | `src/scene/phone.js` | Procedural phone exteriors. Per-design tables: `BEZELS`, `CORNER`; functions `addFrontDetails`, `buildBackDetails`, `addButtons`. Exports shared helpers (`MM`, `slab`, `lens`, `logoMesh`, `mats`). |
 | `src/scene/interior.js` | Procedural teardown interiors, one branch per `look.backLayout`, built in "viewer space". |
@@ -56,14 +56,17 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 
 ## Product rules (from the owner — don't change without asking)
 
-- Personal phones are the focus; work phones sit on a separate small table, labelled only as company/work phones.
-  **Never name the employer.**
+- Personal phones are the focus; work phones sit on a separate small table, labelled only as company/work phones
+  (they can be picked up and opened too). **Never name the employer.**
 - Specs are neutral numbers — no marketing prose or headlines. Unknown values show "not published".
 - Year sits on the left of the phone list. No boot-screen sequence, no dotted "company era" line, no blog link.
 - Full 360° rotation when held and in the teardown view (drag only).
 - Arrow keys while holding a phone: first press shows a toast, second press (same direction, within 3 s) puts it back and moves on.
 - Analytics stays cookieless (no banner, `client_storage: 'none'`).
 - An empty stand after the newest phone is intentional (for the next phone).
+- Footer shows "Built by Rahul · rr2.dev". A short how-to-navigate note appears on first load and leaves by itself.
+- Mobile (≤ 900 px): phone list is one scrollable strip (with a "Work phones" chip), specs are a collapsible bottom sheet,
+  part names show as a toast when a dot is tapped.
 
 ## Adding a phone
 
