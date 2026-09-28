@@ -1,0 +1,880 @@
+{
+  "personal": [
+    {
+      "id": "slvr-l7e",
+      "enabled": true,
+      "name": "Motorola SLVR L7e",
+      "maker": "Motorola",
+      "os": {
+        "name": "Motorola feature-phone OS",
+        "version": ""
+      },
+      "color": {
+        "name": "Black",
+        "hex": "#2A2B2F"
+      },
+      "owned": {
+        "from": "2010",
+        "to": "2012",
+        "label": "2010",
+        "range": "2010 – 2012"
+      },
+      "note": "Technically mom's phone, but mostly mine.",
+      "dimensionsMm": {
+        "w": 49,
+        "h": 113,
+        "d": 11.5
+      },
+      "screenInches": 1.9,
+      "specs": {
+        "processor": null,
+        "cameraMp": 1.3,
+        "cameraLabel": "1.3 MP",
+        "ramMb": null,
+        "storageMb": 20,
+        "cardMb": null,
+        "batteryMah": 880
+      },
+      "logos": {
+        "maker": "motorola",
+        "os": null
+      },
+      "look": {
+        "front": "#101113",
+        "frame": "#3A3C41",
+        "frameRoughness": 0.35,
+        "back": "#35363B",
+        "backMetalness": 0,
+        "backRoughness": 0.45,
+        "wallpaper": [
+          "#2E5E9E",
+          "#0C1830"
+        ],
+        "backLayout": "slvr",
+        "keypad": "#A7ABB1"
+      },
+      "teardown": {
+        "openFrom": "back",
+        "parts": [
+          {
+            "id": "camera",
+            "kind": "camera",
+            "u": 0.38,
+            "v": 0.84,
+            "w": 0.24,
+            "h": 0.1,
+            "spec": "camera",
+            "label": "Camera · 1.3 MP"
+          },
+          {
+            "id": "battery",
+            "kind": "battery",
+            "u": 0.08,
+            "v": 0.2,
+            "w": 0.84,
+            "h": 0.55,
+            "spec": "battery",
+            "label": "Battery · 880 mAh (BK60)"
+          },
+          {
+            "id": "storage",
+            "kind": "slot",
+            "u": 0.2,
+            "v": 0.3,
+            "w": 0.6,
+            "h": 0.2,
+            "spec": "storage",
+            "label": "Storage · 20 MB + microSD",
+            "underBattery": true
+          }
+        ]
+      },
+      "details": [
+        [
+          "Display",
+          "1.9″ TFT · 176 × 220"
+        ],
+        [
+          "Camera",
+          "1.3 MP, video"
+        ],
+        [
+          "Storage",
+          "20 MB + microSD"
+        ],
+        [
+          "Battery",
+          "880 mAh Li-ion (BK60), removable"
+        ],
+        [
+          "Weight",
+          "96 g"
+        ],
+        [
+          "Size",
+          "113 × 49 × 11.5 mm"
+        ],
+        [
+          "Announced",
+          "October 2006"
+        ]
+      ],
+      "source": {
+        "name": "GSMArena",
+        "url": "https://www.gsmarena.com/motorola_slvr_l7e-1763.php"
+      }
+    },
+    {
+      "id": "karbonn-a7",
+      "enabled": true,
+      "name": "Karbonn A7",
+      "maker": "Karbonn",
+      "os": {
+        "name": "Android",
+        "version": "2.3 Gingerbread"
+      },
+      "color": {
+        "name": "Ivory White",
+        "hex": "#EDE6D6"
+      },
+      "owned": {
+        "from": "2012-07",
+        "to": "2014",
+        "label": "2012",
+        "range": "Jul 2012 – 2014"
+      },
+      "dimensionsMm": {
+        "w": 61,
+        "h": 115,
+        "d": 12
+      },
+      "screenInches": 3.5,
+      "specs": {
+        "processor": {
+          "cores": 1,
+          "ghz": 0.8,
+          "coresGhz": 0.8,
+          "label": "1 core · 800 MHz"
+        },
+        "cameraMp": 5,
+        "cameraLabel": "5 MP",
+        "ramMb": null,
+        "storageMb": 512,
+        "cardMb": 1024,
+        "batteryMah": 1420
+      },
+      "logos": {
+        "maker": null,
+        "os": "android"
+      },
+      "tags": [
+        "Custom ROMs"
+      ],
+      "look": {
+        "front": "#F3EFE6",
+        "frame": "#D9D6CF",
+        "frameRoughness": 0.2,
+        "back": "#EFE9DC",
+        "backMetalness": 0,
+        "backRoughness": 0.32,
+        "wallpaper": [
+          "#3B7A57",
+          "#0E241A"
+        ],
+        "backLayout": "karbonn"
+      },
+      "teardown": {
+        "openFrom": "back",
+        "parts": [
+          {
+            "id": "camera",
+            "kind": "camera",
+            "u": 0.4,
+            "v": 0.86,
+            "w": 0.2,
+            "h": 0.09,
+            "spec": "camera",
+            "label": "Camera · 5 MP, dual LED"
+          },
+          {
+            "id": "battery",
+            "kind": "battery",
+            "u": 0.07,
+            "v": 0.2,
+            "w": 0.86,
+            "h": 0.55,
+            "spec": "battery",
+            "label": "Battery · 1,420 mAh"
+          },
+          {
+            "id": "storage",
+            "kind": "slot",
+            "u": 0.1,
+            "v": 0.3,
+            "w": 0.35,
+            "h": 0.2,
+            "spec": "storage",
+            "label": "microSD · 1 GB card",
+            "underBattery": true
+          },
+          {
+            "id": "sim",
+            "kind": "slot",
+            "u": 0.1,
+            "v": 0.45,
+            "w": 0.8,
+            "h": 0.23,
+            "label": "Dual SIM · SIM 1 + SIM 2",
+            "underBattery": true
+          }
+        ]
+      },
+      "details": [
+        [
+          "CPU",
+          "1 core · 800 MHz"
+        ],
+        [
+          "Display",
+          "3.5″ TFT · 320 × 480"
+        ],
+        [
+          "Rear camera",
+          "5 MP, dual-LED flash"
+        ],
+        [
+          "Front camera",
+          "VGA"
+        ],
+        [
+          "Storage",
+          "512 MB + microSD"
+        ],
+        [
+          "Battery",
+          "1420 mAh Li-ion, removable"
+        ],
+        [
+          "SIM",
+          "Dual SIM"
+        ],
+        [
+          "Weight",
+          "110 g"
+        ],
+        [
+          "Launched",
+          "April 2012"
+        ]
+      ],
+      "source": {
+        "name": "The Mobile Indian",
+        "url": "https://themobileindian.com/product-finder/product/karbonn-a7"
+      }
+    },
+    {
+      "id": "moto-e",
+      "enabled": true,
+      "name": "Moto E",
+      "maker": "Motorola",
+      "os": {
+        "name": "Android",
+        "version": "4.4 KitKat"
+      },
+      "color": {
+        "name": "Black",
+        "hex": "#1D1D1F"
+      },
+      "owned": {
+        "from": "2014",
+        "to": "2016",
+        "label": "2014",
+        "range": "2014 – 2016"
+      },
+      "dimensionsMm": {
+        "w": 64.8,
+        "h": 124.8,
+        "d": 12.3
+      },
+      "screenInches": 4.3,
+      "specs": {
+        "processor": {
+          "cores": 2,
+          "ghz": 1.2,
+          "coresGhz": 2.4,
+          "label": "2 cores · 1.2 GHz",
+          "chip": "Snapdragon 200"
+        },
+        "cameraMp": 5,
+        "cameraLabel": "5 MP",
+        "ramMb": 1024,
+        "storageMb": 4096,
+        "cardMb": 2048,
+        "batteryMah": 1980
+      },
+      "logos": {
+        "maker": "motorola",
+        "os": "android"
+      },
+      "tags": [
+        "Custom ROMs"
+      ],
+      "look": {
+        "front": "#0B0B0C",
+        "frame": "#2A2A2D",
+        "frameRoughness": 0.55,
+        "back": "#2C2C30",
+        "backMetalness": 0,
+        "backRoughness": 0.7,
+        "wallpaper": [
+          "#1E6FB8",
+          "#081C33"
+        ],
+        "backLayout": "motoe"
+      },
+      "teardown": {
+        "openFrom": "back",
+        "parts": [
+          {
+            "id": "board",
+            "kind": "board",
+            "u": 0.04,
+            "v": 0.66,
+            "w": 0.92,
+            "h": 0.32
+          },
+          {
+            "id": "camera",
+            "kind": "camera",
+            "u": 0.41,
+            "v": 0.86,
+            "w": 0.18,
+            "h": 0.08,
+            "spec": "camera",
+            "label": "Camera · 5 MP"
+          },
+          {
+            "id": "processor",
+            "kind": "chip",
+            "u": 0.6,
+            "v": 0.8,
+            "w": 0.3,
+            "h": 0.12,
+            "spec": "processor",
+            "label": "Processor · Snapdragon 200"
+          },
+          {
+            "id": "ram",
+            "kind": "chip",
+            "u": 0.6,
+            "v": 0.8,
+            "w": 0.3,
+            "h": 0.12,
+            "spec": "ram",
+            "label": "RAM · 1 GB",
+            "hotspotOffset": [
+              0.07,
+              -0.04
+            ]
+          },
+          {
+            "id": "storage",
+            "kind": "slot",
+            "u": 0.1,
+            "v": 0.69,
+            "w": 0.3,
+            "h": 0.09,
+            "spec": "storage",
+            "label": "Storage · 4 GB + microSD"
+          },
+          {
+            "id": "battery",
+            "kind": "battery",
+            "u": 0.07,
+            "v": 0.08,
+            "w": 0.86,
+            "h": 0.55,
+            "spec": "battery",
+            "label": "Battery · 1,980 mAh"
+          }
+        ]
+      },
+      "details": [
+        [
+          "Chip",
+          "Qualcomm Snapdragon 200 (MSM8210)"
+        ],
+        [
+          "CPU",
+          "2 cores · 1.2 GHz Cortex-A7"
+        ],
+        [
+          "GPU",
+          "Adreno 302"
+        ],
+        [
+          "Display",
+          "4.3″ LCD · 540 × 960 · 256 ppi, Gorilla Glass 3"
+        ],
+        [
+          "Rear camera",
+          "5 MP fixed focus"
+        ],
+        [
+          "Front camera",
+          "None"
+        ],
+        [
+          "Battery",
+          "1980 mAh, non-removable"
+        ],
+        [
+          "Weight",
+          "142 g"
+        ],
+        [
+          "Size",
+          "124.8 × 64.8 × 12.3 mm"
+        ],
+        [
+          "Released",
+          "May 2014"
+        ]
+      ],
+      "source": {
+        "name": "iFixit",
+        "url": "https://www.ifixit.com/Device/Motorola_Moto_E_1st_Generation"
+      }
+    },
+    {
+      "id": "redmi-note-3",
+      "enabled": true,
+      "name": "Redmi Note 3",
+      "maker": "Xiaomi",
+      "logos": {
+        "maker": "mi",
+        "os": "android"
+      },
+      "os": {
+        "name": "MIUI 7",
+        "version": "Android 5.1 Lollipop"
+      },
+      "color": {
+        "name": "Silver",
+        "hex": "#C9CCD1"
+      },
+      "owned": {
+        "from": "2016-05",
+        "to": "2016-09",
+        "label": "2016",
+        "range": "May 2016 – Sep 2016"
+      },
+      "form": "slab",
+      "dimensionsMm": {
+        "w": 76,
+        "h": 150,
+        "d": 8.7
+      },
+      "screenInches": 5.5,
+      "look": {
+        "front": "#F4F5F6",
+        "frame": "#C9CCD0",
+        "frameRoughness": 0.32,
+        "back": "#DADDE1",
+        "backMetalness": 0.9,
+        "backRoughness": 0.42,
+        "wallpaper": [
+          "#6B5B95",
+          "#1B1830"
+        ],
+        "backLayout": "redmi"
+      },
+      "specs": {
+        "processor": {
+          "cores": 6,
+          "ghz": 1.8,
+          "coresGhz": 9.2,
+          "label": "6 cores · 1.8 GHz",
+          "chip": "Snapdragon 650"
+        },
+        "cameraMp": 16,
+        "cameraLabel": "16 MP",
+        "ramMb": 2048,
+        "storageMb": 16384,
+        "cardMb": null,
+        "batteryMah": 4050
+      },
+      "teardown": {
+        "openFrom": "back",
+        "photoCredit": {
+          "url": "https://www.ifixit.com/Guide/Xiaomi+Redmi+Note+3+Disassembly+Guide/162330",
+          "title": "Xiaomi Redmi Note 3 Disassembly Guide",
+          "author": "Meaghan Owens"
+        },
+        "parts": [
+          {
+            "id": "board",
+            "kind": "board",
+            "u": 0.02,
+            "v": 0.62,
+            "w": 0.94,
+            "h": 0.37
+          },
+          {
+            "id": "processor",
+            "kind": "chip",
+            "u": 0.55,
+            "v": 0.74,
+            "w": 0.18,
+            "h": 0.1,
+            "spec": "processor",
+            "label": "Processor · Snapdragon 650"
+          },
+          {
+            "id": "ram",
+            "kind": "chip",
+            "u": 0.42,
+            "v": 0.63,
+            "w": 0.14,
+            "h": 0.07,
+            "spec": "ram",
+            "label": "RAM · 2 GB"
+          },
+          {
+            "id": "storage",
+            "kind": "chip",
+            "u": 0.08,
+            "v": 0.69,
+            "w": 0.17,
+            "h": 0.09,
+            "spec": "storage",
+            "label": "Storage · 16 GB"
+          },
+          {
+            "id": "camera",
+            "kind": "camera",
+            "u": 0.37,
+            "v": 0.85,
+            "w": 0.16,
+            "h": 0.08,
+            "spec": "camera",
+            "label": "Camera · 16 MP"
+          },
+          {
+            "id": "battery",
+            "kind": "battery",
+            "u": 0.05,
+            "v": 0.11,
+            "w": 0.85,
+            "h": 0.5,
+            "label": "Battery · 4,050 mAh",
+            "spec": "battery"
+          }
+        ]
+      },
+      "details": [
+        [
+          "Chip",
+          "Qualcomm Snapdragon 650 (MSM8956)"
+        ],
+        [
+          "CPU",
+          "6-core: 2 × 1.8 GHz Cortex-A72 + 4 × 1.4 GHz Cortex-A53"
+        ],
+        [
+          "GPU",
+          "Adreno 510"
+        ],
+        [
+          "Display",
+          "5.5″ IPS LCD · 1080 × 1920 · 403 ppi"
+        ],
+        [
+          "Front camera",
+          "5 MP ƒ/2.0"
+        ],
+        [
+          "Rear camera",
+          "16 MP ƒ/2.0, PDAF, dual-LED flash"
+        ],
+        [
+          "Battery",
+          "4050 mAh, non-removable"
+        ],
+        [
+          "Weight",
+          "164 g"
+        ],
+        [
+          "Size",
+          "150 × 76 × 8.7 mm"
+        ],
+        [
+          "Launched",
+          "March 2016"
+        ]
+      ],
+      "source": {
+        "name": "iFixit",
+        "url": "https://www.ifixit.com/Device/Xiaomi_Redmi_Note_3"
+      }
+    },
+    {
+      "id": "iphone-13-mini",
+      "enabled": true,
+      "name": "iPhone 13 mini",
+      "maker": "Apple",
+      "logos": {
+        "maker": "apple",
+        "os": "ios"
+      },
+      "os": {
+        "name": "iOS",
+        "version": "15"
+      },
+      "color": {
+        "name": "(PRODUCT)RED",
+        "hex": "#C4102E"
+      },
+      "owned": {
+        "from": "2022",
+        "to": null,
+        "label": "2022",
+        "range": "2022 – now"
+      },
+      "form": "slab",
+      "dimensionsMm": {
+        "w": 64.2,
+        "h": 131.5,
+        "d": 7.65
+      },
+      "screenInches": 5.4,
+      "look": {
+        "front": "#0B0B0C",
+        "frame": "#9E1220",
+        "frameRoughness": 0.38,
+        "back": "#B8102B",
+        "backMetalness": 0.0,
+        "backRoughness": 0.07,
+        "wallpaper": [
+          "#D0102A",
+          "#2A0710"
+        ],
+        "backLayout": "iphone13"
+      },
+      "specs": {
+        "processor": {
+          "cores": 6,
+          "ghz": 3.2,
+          "coresGhz": 13.74,
+          "label": "6 cores · 3.2 GHz",
+          "chip": "A15 Bionic"
+        },
+        "cameraMp": 12,
+        "cameraLabel": "12 MP ×2",
+        "ramMb": 4096,
+        "storageMb": 262144,
+        "cardMb": null,
+        "batteryMah": 2406
+      },
+      "teardown": {
+        "openFrom": "front",
+        "photoCredit": {
+          "url": "https://www.ifixit.com/Guide/iPhone+13+mini+Battery+Replacement/145508",
+          "title": "iPhone 13 mini Battery Replacement",
+          "author": "Adriana Zwink"
+        },
+        "parts": [
+          {
+            "id": "board",
+            "kind": "board",
+            "u": 0.04,
+            "v": 0.3,
+            "w": 0.28,
+            "h": 0.5
+          },
+          {
+            "id": "processor",
+            "kind": "chip",
+            "u": 0.065,
+            "v": 0.53,
+            "w": 0.23,
+            "h": 0.16,
+            "spec": "processor",
+            "label": "A15 Bionic"
+          },
+          {
+            "id": "ram",
+            "kind": "chip",
+            "u": 0.065,
+            "v": 0.53,
+            "w": 0.23,
+            "h": 0.16,
+            "spec": "ram",
+            "label": "RAM · 4 GB (stacked on A15)",
+            "hotspotOffset": [
+              0.07,
+              -0.035
+            ]
+          },
+          {
+            "id": "storage",
+            "kind": "chip",
+            "u": 0.065,
+            "v": 0.33,
+            "w": 0.23,
+            "h": 0.13,
+            "spec": "storage",
+            "label": "Storage · 256 GB"
+          },
+          {
+            "id": "camera",
+            "kind": "camera",
+            "u": 0.25,
+            "v": 0.78,
+            "w": 0.65,
+            "h": 0.2,
+            "spec": "camera",
+            "label": "Cameras · 12 MP ×2"
+          },
+          {
+            "id": "battery",
+            "kind": "battery",
+            "u": 0.32,
+            "v": 0.16,
+            "w": 0.65,
+            "h": 0.6,
+            "label": "Battery · 2,406 mAh",
+            "spec": "battery"
+          },
+          {
+            "id": "taptic",
+            "kind": "module",
+            "u": 0.1,
+            "v": 0.06,
+            "w": 0.25,
+            "h": 0.08
+          }
+        ]
+      },
+      "details": [
+        [
+          "Chip",
+          "A15 Bionic (5 nm) · 16-core Neural Engine"
+        ],
+        [
+          "CPU",
+          "6-core"
+        ],
+        [
+          "GPU",
+          "4-core"
+        ],
+        [
+          "Display",
+          "5.4″ Super Retina XDR OLED · 2340 × 1080 · 476 ppi"
+        ],
+        [
+          "Front camera",
+          "12 MP TrueDepth"
+        ],
+        [
+          "Rear cameras",
+          "12 MP wide ƒ/1.6 (sensor-shift OIS) + 12 MP ultra-wide ƒ/2.4"
+        ],
+        [
+          "Battery",
+          "2406 mAh"
+        ],
+        [
+          "Weight",
+          "141 g"
+        ],
+        [
+          "Size",
+          "131.5 × 64.2 × 7.65 mm"
+        ],
+        [
+          "Water resistance",
+          "IP68"
+        ],
+        [
+          "Released",
+          "24 September 2021"
+        ]
+      ],
+      "source": {
+        "name": "iFixit",
+        "url": "https://www.ifixit.com/Device/iPhone_13_mini"
+      }
+    }
+  ],
+  "work": [
+    {
+      "id": "iphone-6-plus",
+      "name": "iPhone 6 Plus",
+      "color": {
+        "name": "Space Gray",
+        "hex": "#4A4B4F"
+      },
+      "dimensionsMm": {
+        "w": 77.8,
+        "h": 158.1,
+        "d": 7.1
+      },
+      "screenInches": 5.5,
+      "storageGb": 64
+    },
+    {
+      "id": "iphone-7-plus",
+      "name": "iPhone 7 Plus",
+      "color": {
+        "name": "Black",
+        "hex": "#26272A"
+      },
+      "dimensionsMm": {
+        "w": 77.9,
+        "h": 158.2,
+        "d": 7.3
+      },
+      "screenInches": 5.5,
+      "storageGb": 128
+    },
+    {
+      "id": "iphone-11",
+      "name": "iPhone 11",
+      "color": {
+        "name": "Black",
+        "hex": "#2B2C30"
+      },
+      "dimensionsMm": {
+        "w": 75.7,
+        "h": 150.9,
+        "d": 8.3
+      },
+      "screenInches": 6.1,
+      "storageGb": 128
+    },
+    {
+      "id": "iphone-13",
+      "name": "iPhone 13",
+      "color": {
+        "name": "Midnight",
+        "hex": "#1E2229"
+      },
+      "dimensionsMm": {
+        "w": 71.5,
+        "h": 146.7,
+        "d": 7.65
+      },
+      "screenInches": 6.1,
+      "storageGb": 256
+    }
+  ],
+  "next": {
+    "id": "next",
+    "name": "Next phone",
+    "label": "Next",
+    "standHeightMm": 150
+  }
+}

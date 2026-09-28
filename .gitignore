@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env*
+# local reference material (e.g. iFixit teardown photos) — not published
+reference/

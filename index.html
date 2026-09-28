@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>My Phone Showroom</title>
+  <meta name="description" content="Every phone I've owned, on a showroom table — pick one up, turn it around, open it up.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <canvas id="scene" aria-label="A round showroom table with my phones on stands"></canvas>
+
+  <div id="loading" role="status"><span>Setting up the showroom…</span></div>
+
+  <header class="top">
+    <h1 class="title">My Phone Showroom</h1>
+  </header>
+
+  <aside id="directory" class="panel" aria-label="Phones">
+    <div class="eyebrow">My phones</div>
+    <ol id="dir-personal" class="timeline"></ol>
+    <div class="eyebrow sub">Work table</div>
+    <ul id="dir-work" class="worklist"></ul>
+  </aside>
+
+  <section id="specs" class="panel" aria-live="polite"></section>
+
+  <ol id="steps" class="steps" hidden>
+    <li data-step="1">1 Cover off</li>
+    <li data-step="2">2 Battery out</li>
+  </ol>
+
+  <div id="hotspots" aria-label="Parts"></div>
+
+  <nav id="controls" class="controls" aria-label="Controls"></nav>
+  <p id="hint" class="hint" hidden></p>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <footer class="credits">
+    <span id="credit-text">Teardown views are placeholder models until the iFixit photos are added.</span>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
