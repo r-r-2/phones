@@ -6,6 +6,7 @@ import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { LOGO_PATHS } from '../logos.js';
 import { buildDetailedInterior } from './interior.js';
+import { SLVR_OUTLINE, SLVR_SIDE, SLVR_BEZELS, slvrFront, slvrBack } from './slvr.js';
 
 export const MM = 0.001;
 
@@ -25,9 +26,46 @@ export function roundedRectShape(w, h, r) {
   return s;
 }
 
+/**
+ * Candybar outline with arched top and bottom edges (e.g. the SLVR), traced from product photos.
+ * `o` (metres): top/bot = how far the arcs rise above their ends, cvTop/cvBot = height of the
+ * corner curves, ch = corner width. The width and height stay exactly w × h.
+ */
+export function archedShape(w, h, o) {
+  const s = new THREE.Shape();
+  const x0 = -w / 2, x1 = w / 2, yT = h / 2, yB = -h / 2;
+  const { top, bot, cvTop, cvBot, ch } = o;
+  const half = x1 - ch;
+  const mT = (2 * top) / half, mB = (2 * bot) / half; // arc slope at its ends, so corners join smoothly
+  s.moveTo(x0 + ch, yB + bot);
+  s.quadraticCurveTo(0, yB - bot, x1 - ch, yB + bot);
+  s.quadraticCurveTo(x1, yB + bot + mB * ch, x1, yB + bot + cvBot);
+  s.lineTo(x1, yT - top - cvTop);
+  s.quadraticCurveTo(x1, yT - top - mT * ch, x1 - ch, yT - top);
+  s.quadraticCurveTo(0, yT + top, x0 + ch, yT - top);
+  s.quadraticCurveTo(x0, yT - top - mT * ch, x0, yT - top - cvTop);
+  s.lineTo(x0, yB + bot + cvBot);
+  s.quadraticCurveTo(x0, yB + bot + mB * ch, x0 + ch, yB + bot);
+  return s;
+}
+
+/** Body outline: a traced custom outline when the design has one, else a rounded rectangle. */
+export function outlineShape(w, h, r, outline = null) {
+  return outline ? archedShape(w, h, outline) : roundedRectShape(w, h, r);
+}
+
+/** Flat shape geometry with 0..1 UVs across its w × h bounds (for full-face decals). */
+export function flatShape(shape, w, h) {
+  const g = new THREE.ShapeGeometry(shape, 24);
+  const pos = g.attributes.position, uv = g.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / h + 0.5);
+  uv.needsUpdate = true;
+  return g;
+}
+
 /** A thin rounded slab centred on z=0, thickness t. */
-export function slab(w, h, r, t, bevel = 0) {
-  const g = new THREE.ExtrudeGeometry(roundedRectShape(w - bevel * 2, h - bevel * 2, Math.max(r - bevel, 0.0001)), {
+export function slab(w, h, r, t, bevel = 0, outline = null) {
+  const g = new THREE.ExtrudeGeometry(outlineShape(w - bevel * 2, h - bevel * 2, Math.max(r - bevel, 0.0001), outline), {
     depth: Math.max(t - bevel * 2, 0.00001),
     bevelEnabled: bevel > 0,
     bevelThickness: bevel,
@@ -138,13 +176,16 @@ const BEZELS = {
   iphone6p: [4.65, 18, 18],
   iphone7p: [4.7, 18, 18],
   redmi: [3.8, 16, 12],
-  slvr: [10, 16, 64.5], // 1.9" screen under the chrome emblem, flat keypad below
+  slvr: SLVR_BEZELS, // traced from the product photo (see slvr.js)
   karbonn: [5.8, 18, 23],
   motoe: [5.65, 14.5, 15.1],
 };
 const CORNER = { iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.2, karbonn: 0.16, motoe: 0.17 };
 // full-screen designs: notch in the lock screen and a screen that follows the body's corners
 const NOTCHED = new Set(['iphone13', 'iphone11']);
+// designs with a traced outline / rounded-pill sides instead of a rounded rectangle
+const OUTLINES = { slvr: SLVR_OUTLINE };
+const SIDES = { slvr: SLVR_SIDE };
 
 function canvasTexture(wpx, hpx, draw) {
   const c = document.createElement('canvas');
@@ -208,42 +249,8 @@ function featureScreenTexture(phone, aspect) {
     // soft-key labels
     g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, H - 38, W, 38);
     g.fillStyle = '#fff'; g.font = '600 20px system-ui, sans-serif';
-    g.textAlign = 'left'; g.fillText('Contacts', 10, H - 12);
-    g.textAlign = 'right'; g.fillText('Menu', W - 10, H - 12);
-  });
-}
-
-/** The SLVR L7e's flat keypad: navy face, silver-white characters, keys split by fine lines. */
-function keypadTexture(wmm, hmm, base) {
-  const S = 30;
-  return canvasTexture(Math.round(wmm * S), Math.round(hmm * S), (g, W, H) => {
-    const gr = g.createLinearGradient(0, 0, W, 0);
-    gr.addColorStop(0, '#11183A'); gr.addColorStop(0.5, base); gr.addColorStop(1, '#11183A');
-    g.fillStyle = gr; g.fillRect(0, 0, W, H);
-    const ink = '#E8ECF4', line = 'rgba(150,165,210,0.45)', mm = S;
-    const nav = H * 0.34; // soft keys, call/end and the round nav ring sit in the top third
-    g.strokeStyle = line; g.lineWidth = 2;
-    // soft keys (thin bars) and the small keys either side of the ring
-    g.fillStyle = ink;
-    g.fillRect(W * 0.08, nav * 0.1, W * 0.2, 3); g.fillRect(W * 0.72, nav * 0.1, W * 0.2, 3);
-    g.beginPath(); g.arc(W * 0.12, nav * 0.42, mm * 0.9, 0, Math.PI * 2); g.fill();
-    g.beginPath(); g.arc(W * 0.88, nav * 0.42, mm * 0.9, 0, Math.PI * 2); g.fill();
-    g.font = `700 ${mm * 2.6}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = '#3FBF5A'; g.fillText('✆', W * 0.12, nav * 0.78);
-    g.fillStyle = '#E0473F'; g.fillText('✆', W * 0.88, nav * 0.78);
-    // 4 × 3 number keys
-    const gy = nav, gh = H - nav - H * 0.03, rows = 4, rh = gh / rows;
-    for (let r = 0; r <= rows; r++) { g.beginPath(); g.moveTo(W * 0.04, gy + r * rh); g.lineTo(W * 0.96, gy + r * rh); g.stroke(); }
-    for (const x of [W / 3, (W * 2) / 3]) { g.beginPath(); g.moveTo(x, gy); g.lineTo(x, gy + gh); g.stroke(); }
-    const keys = [['1', 'o_o'], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']];
-    g.fillStyle = ink;
-    keys.forEach(([n, l], i) => {
-      const cx = W * (1 / 6 + (i % 3) / 3), cy = gy + (Math.floor(i / 3) + 0.5) * rh;
-      g.font = `600 ${rh * 0.46}px system-ui`; g.textAlign = 'right';
-      g.fillText(n, cx - W * 0.005, cy);
-      g.font = `500 ${rh * 0.2}px system-ui`; g.textAlign = 'left';
-      g.fillText(l, cx + W * 0.02, cy + rh * 0.04);
-    });
+    g.textAlign = 'left'; g.fillText('Styles', 10, H - 12);
+    g.textAlign = 'right'; g.fillText('Camera', W - 10, H - 12);
   });
 }
 
@@ -270,27 +277,7 @@ function addFrontDetails(front, look, W, H, { sw, sh, bezelTop, bezelBottom, z }
     spk.position.set(0, H / 2 - bezelTop / 2, zt);
     front.add(spk);
   } else if (layout === 'slvr') {
-    // L7e front: chrome emblem up top, MOTOROLA wordmark, flat navy keypad with a chrome nav ring
-    const kh = bezelBottom - 5 * MM, kw = W - 6 * MM;
-    const pad = decalPlane(kw, kh, keypadTexture(kw / MM, kh / MM, look.keypad ?? '#1C2550'), { rough: 0.3, metal: 0.2, transparent: false });
-    const padY = -H / 2 + 3.5 * MM + kh / 2;
-    pad.position.set(0, padY, zt);
-    front.add(pad);
-    const navY = padY + kh / 2 - kh * 0.34 * 0.52;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(6.2 * MM, 1.9 * MM, 20, 64), chrome);
-    ring.scale.z = 0.35;
-    ring.position.set(0, navY, z + 0.35 * MM);
-    const centre = new THREE.Mesh(new THREE.CylinderGeometry(3.3 * MM, 3.3 * MM, 0.6 * MM, 40), new THREE.MeshPhysicalMaterial({ color: '#0B0E1C', roughness: 0.2, clearcoat: 0.6 }));
-    centre.rotation.x = Math.PI / 2; centre.position.set(0, navY, z + 0.3 * MM);
-    const embY = H / 2 - bezelTop * 0.36;
-    const emblem = new THREE.Mesh(new THREE.CylinderGeometry(4.2 * MM, 4.4 * MM, 0.6 * MM, 48), chrome);
-    emblem.rotation.x = Math.PI / 2; emblem.position.set(0, embY, z + 0.3 * MM);
-    const bat = logoMesh('motorola', 6 * MM, new THREE.MeshStandardMaterial({ color: '#2A2E3A', metalness: 0.6, roughness: 0.35 }));
-    bat.scale.x *= -1; // logoMesh reads from behind; this one faces the front
-    bat.position.set(0, embY, z + 0.62 * MM);
-    const wm = textPlane('MOTOROLA', W * 0.44, 2.0 * MM, { color: '#DDE2EE', weight: 700, spacing: 0.22 });
-    wm.position.set(0, H / 2 - bezelTop * 0.8, zt);
-    front.add(ring, centre, emblem, bat, wm);
+    slvrFront(front, W, H, z);
   } else if (layout === 'karbonn') {
     // HTC-Desire-style front: grey glass around the screen, a white chin with a silver pill button
     const white = new THREE.MeshPhysicalMaterial({ color: look.back ?? "#F4F1EA", roughness: 0.32 });
@@ -404,15 +391,7 @@ function buildBackDetails(phone, W, H, backMat) {
     logo.position.set(0, -H / 2 + 0.2 * H, -0.08 * MM);
     g.add(cam, fl, fp, s1, s2, logo);
   } else if (layout === 'slvr') {
-    const r = 0.1 * W;
-    const cam = lens(r, 0.6 * MM); cam.position.set(0, H / 2 - 0.1 * H, -0.2 * MM);
-    const seam = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.94, 0.25 * MM), new THREE.MeshStandardMaterial({ color: '#0A0A0B' }));
-    seam.position.set(0, H / 2 - 0.2 * H, -0.03 * MM); seam.rotation.y = Math.PI;
-    const logo = logoMesh('motorola', 0.009, new THREE.MeshStandardMaterial({ color: '#B8BDC8', metalness: 1, roughness: 0.25 }));
-    logo.position.set(0, -0.02 * H, -0.08 * MM);
-    const grille = holesPlane(W * 0.3, 2.4 * MM, { rows: 2, cols: 10 }); grille.rotation.y = Math.PI;
-    grille.position.set(0, -H / 2 + 0.1 * H, -0.03 * MM);
-    g.add(cam, seam, logo, grille);
+    slvrBack(g, W, H, backMat);
   } else if (layout === 'karbonn') {
     // camera with its signature red ring, flash beside it, red wordmark and a small two-slot speaker
     const r = 0.075 * W, cy = H / 2 - 0.14 * H;
@@ -479,9 +458,10 @@ function addButtons(root, layout, W, H, D, mat) {
     btn(22 * MM, R, H / 2 - 42 * MM); // volume rocker
     btn(10 * MM, R, H / 2 - 62 * MM); // power
   } else if (layout === 'slvr') {
-    btn(14 * MM, L, H / 2 - 30 * MM); // volume
-    btn(7 * MM, R, H / 2 - 28 * MM); // smart key
-    btn(7 * MM, R, H / 2 - 42 * MM); // camera key
+    // positions from the product photos
+    btn(11 * MM, L, H / 2 - 22.5 * MM); // volume
+    btn(9 * MM, R, H / 2 - 18.5 * MM); // voice key
+    btn(11 * MM, R, H / 2 - 72.5 * MM); // smart key
   } else if (layout === 'karbonn') {
     btn(14 * MM, L, H / 2 - 30 * MM); // volume
     btn(8 * MM, R, H / 2 - 22 * MM); // power
@@ -527,9 +507,13 @@ export function buildPhone(phone, { simple = false } = {}) {
 
   // Frame ring (hollow so the interior shows once a cover is lifted)
   // the bevel grows the outline by bevelSize, so draw the shape that much smaller to keep the real width/height
-  const bev = Math.min(0.9 * MM, D * 0.15), bs = bev * 0.6;
-  const outer = roundedRectShape(W - 2 * bs, H - 2 * bs, r - bs);
-  const inner = roundedRectShape(W - 2.2 * MM + 2 * bs, H - 2.2 * MM + 2 * bs, Math.max(r - 1.1 * MM + bs, 0.5 * MM));
+  const outline = OUTLINES[look.backLayout] ?? null;
+  const side = SIDES[look.backLayout];
+  const bev = side?.bev ?? Math.min(0.9 * MM, D * 0.15), bs = side?.bs ?? bev * 0.6;
+  const outer = outlineShape(W - 2 * bs, H - 2 * bs, r - bs, outline);
+  const inner = outlineShape(W - 2.2 * MM + 2 * bs, H - 2.2 * MM + 2 * bs, Math.max(r - 1.1 * MM + bs, 0.5 * MM), outline);
+  // front/back plates sit inside the rounded edge when the sides are pill-shaped
+  const plateInset = side ? 2 * bs + 0.3 * MM : 0.4 * MM;
   outer.holes.push(new THREE.Path(inner.getPoints(24)));
   const frameGeo = new THREE.ExtrudeGeometry(outer, { depth: D - bev * 2, bevelEnabled: true, bevelThickness: bev, bevelSize: bs, bevelSegments: 4, curveSegments: 24 });
   frameGeo.translate(0, 0, -(D - bev * 2) / 2);
@@ -540,7 +524,7 @@ export function buildPhone(phone, { simple = false } = {}) {
   const glassT = 0.8 * MM;
   // Front: glass + lit screen
   const front = new THREE.Group();
-  const frontGlass = new THREE.Mesh(slab(W - 0.4 * MM, H - 0.4 * MM, r - 0.2 * MM, glassT, 0.25 * MM), frontMat);
+  const frontGlass = new THREE.Mesh(slab(W - plateInset, H - plateInset, r - 0.2 * MM, glassT, 0.25 * MM, outline), frontMat);
   frontGlass.castShadow = true;
   front.add(frontGlass);
   const bz = BEZELS[look.backLayout] ?? BEZELS.default;
@@ -568,7 +552,7 @@ export function buildPhone(phone, { simple = false } = {}) {
 
   // Back cover
   const back = new THREE.Group();
-  const backPlate = new THREE.Mesh(slab(W - 0.4 * MM, H - 0.4 * MM, r - 0.2 * MM, glassT, 0.25 * MM), backMat);
+  const backPlate = new THREE.Mesh(slab(W - plateInset, H - plateInset, r - 0.2 * MM, glassT, 0.25 * MM, outline), backMat);
   backPlate.castShadow = true;
   back.add(backPlate);
   if (!simple) {
@@ -589,7 +573,7 @@ export function buildPhone(phone, { simple = false } = {}) {
   if (phone.teardown && !simple) {
     openSide = phone.teardown.openFrom === 'back' ? -1 : 1;
     // detailed interior laid out after iFixit teardowns (one branch per backLayout)
-    const inside = buildDetailedInterior(phone, W, H, D, openSide, r);
+    const inside = buildDetailedInterior(phone, W, H, D, openSide, outline ? 12 * MM : r);
     interior = inside.group;
     battery = inside.battery;
     root.add(interior);

@@ -11,7 +11,7 @@
       },
       "color": {
         "name": "Blue",
-        "hex": "#1E2750"
+        "hex": "#262d45"
       },
       "owned": {
         "from": "2010",
@@ -40,12 +40,12 @@
         "os": null
       },
       "look": {
-        "front": "#1A2350",
-        "frame": "#2B3566",
-        "frameRoughness": 0.3,
-        "back": "#1E2750",
+        "front": "#20263a",
+        "frame": "#454a5e",
+        "frameRoughness": 0.32,
+        "back": "#1c202d",
         "backMetalness": 0,
-        "backRoughness": 0.35,
+        "backRoughness": 0.42,
         "wallpaper": [
           "#C86A3A",
           "#3A2A5A"
