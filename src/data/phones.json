@@ -10,8 +10,8 @@
         "version": ""
       },
       "color": {
-        "name": "Black",
-        "hex": "#2A2B2F"
+        "name": "Blue",
+        "hex": "#1E2750"
       },
       "owned": {
         "from": "2010",
@@ -40,18 +40,18 @@
         "os": null
       },
       "look": {
-        "front": "#101113",
-        "frame": "#3A3C41",
-        "frameRoughness": 0.35,
-        "back": "#35363B",
+        "front": "#1A2350",
+        "frame": "#2B3566",
+        "frameRoughness": 0.3,
+        "back": "#1E2750",
         "backMetalness": 0,
-        "backRoughness": 0.45,
+        "backRoughness": 0.35,
         "wallpaper": [
-          "#2E5E9E",
-          "#0C1830"
+          "#C86A3A",
+          "#3A2A5A"
         ],
         "backLayout": "slvr",
-        "keypad": "#A7ABB1"
+        "keypad": "#1C2550"
       },
       "teardown": {
         "openFrom": "back",

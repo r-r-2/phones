@@ -16,6 +16,7 @@
   - Thickness check: every frame now measures exactly its listed size (the bevel was adding ~1 mm to width and height). Cameras on phones with near-flush lenses (Redmi, Moto E, SLVR, Karbonn) no longer stick out 1 mm; 7 Plus bump lowered.
   - Work iPhones "edges popping out at the corners": interior parts were square-cornered and poked through the big rounded corners. Every interior part is now trimmed to the frame's rounded opening, and the mid-plate follows the corner radius. Also toned down the glass-edge glare that drew a grey rim round dark phones.
 - 12:10 — Removed the part dots (hotspots) and their labels from the teardown view; Rahul decided the feature wasn't adding much. Opening a phone now just shows the modelled insides; the battery step stays.
+- 12:30 — SLVR L7e rebuilt from a real photo (branch `fix/slvr-l7e-look`): it had been modelled from memory as a silver-keypad L7, but Rahul's L7e is the navy one. Now: navy body, chrome Motorola emblem above a white MOTOROLA wordmark, flat navy keypad with silver-white characters split by fine lines, green/red call keys, a chrome nav ring with a dark centre, rounder top and bottom, colour listed as Blue. Width stays 49 mm (GSMArena: 113 × 49 × 11.5 mm); the square-cornered old body just made it read wider.
 
 ## Screenshots to use
 - devlog/shots/day-2/ (work phones, mobile, intro)

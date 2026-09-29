@@ -138,11 +138,11 @@ const BEZELS = {
   iphone6p: [4.65, 18, 18],
   iphone7p: [4.7, 18, 18],
   redmi: [3.8, 16, 12],
-  slvr: [9.5, 12, 64], // 1.9" screen up top, etched metal keypad below
+  slvr: [10, 16, 64.5], // 1.9" screen under the chrome emblem, flat keypad below
   karbonn: [5.8, 18, 23],
   motoe: [5.65, 14.5, 15.1],
 };
-const CORNER = { iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.1, karbonn: 0.16, motoe: 0.17 };
+const CORNER = { iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.2, karbonn: 0.16, motoe: 0.17 };
 // full-screen designs: notch in the lock screen and a screen that follows the body's corners
 const NOTCHED = new Set(['iphone13', 'iphone11']);
 
@@ -213,40 +213,36 @@ function featureScreenTexture(phone, aspect) {
   });
 }
 
-/** The SLVR's flat, laser-etched metal keypad. */
+/** The SLVR L7e's flat keypad: navy face, silver-white characters, keys split by fine lines. */
 function keypadTexture(wmm, hmm, base) {
   const S = 30;
   return canvasTexture(Math.round(wmm * S), Math.round(hmm * S), (g, W, H) => {
-    g.fillStyle = base; g.fillRect(0, 0, W, H);
-    // brushed streaks
-    for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * 0.06})`; g.fillRect(0, Math.random() * H, W, 1); }
-    const line = 'rgba(40,42,46,0.7)';
+    const gr = g.createLinearGradient(0, 0, W, 0);
+    gr.addColorStop(0, '#11183A'); gr.addColorStop(0.5, base); gr.addColorStop(1, '#11183A');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    const ink = '#E8ECF4', line = 'rgba(150,165,210,0.45)', mm = S;
+    const nav = H * 0.34; // soft keys, call/end and the round nav ring sit in the top third
     g.strokeStyle = line; g.lineWidth = 2;
-    const top = H * 0.36; // nav cluster above the number grid
-    // soft keys + call/end
-    g.fillStyle = '#2B2D31';
-    const nx = W / 2, ny = top * 0.5, nr = top * 0.34;
-    g.beginPath(); g.arc(nx, ny, nr, 0, Math.PI * 2); g.stroke();
-    g.beginPath(); g.arc(nx, ny, nr * 0.42, 0, Math.PI * 2); g.stroke();
-    g.fillStyle = '#2B2D31';
-    for (const [x, y] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) { g.beginPath(); g.arc(nx + x * nr * 0.72, ny + y * nr * 0.72, 3, 0, Math.PI * 2); g.fill(); }
-    g.beginPath(); g.moveTo(W * 0.06, top * 0.18); g.lineTo(W * 0.26, top * 0.18); g.stroke();
-    g.beginPath(); g.moveTo(W * 0.74, top * 0.18); g.lineTo(W * 0.94, top * 0.18); g.stroke();
-    g.fillStyle = '#2E8B45'; g.font = `700 ${top * 0.2}px system-ui`; g.textAlign = 'center';
-    g.fillText('✆', W * 0.14, top * 0.72);
-    g.fillStyle = '#B8332E'; g.fillText('✆', W * 0.86, top * 0.72);
-    // 4×3 grid, separated by etched lines like the real keypad
-    const gy = top, gh = H - top - H * 0.04, rows = 4, cols = 3;
-    for (let r = 1; r < rows; r++) { g.beginPath(); g.moveTo(W * 0.05, gy + (gh / rows) * r); g.lineTo(W * 0.95, gy + (gh / rows) * r); g.stroke(); }
-    g.beginPath(); g.moveTo(W * 0.05, gy); g.lineTo(W * 0.95, gy); g.stroke();
-    const keys = ['1', '2 abc', '3 def', '4 ghi', '5 jkl', '6 mno', '7 pqrs', '8 tuv', '9 wxyz', '*', '0 +', '#'];
-    g.fillStyle = '#1E2023';
-    keys.forEach((k, i) => {
-      const cx = W * (0.18 + (i % cols) * 0.32), cy = gy + (Math.floor(i / cols) + 0.5) * (gh / rows);
-      const [n, l] = k.split(' ');
-      g.font = `600 ${gh / rows * 0.42}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(n, cx - (l ? W * 0.04 : 0), cy);
-      if (l) { g.font = `500 ${gh / rows * 0.2}px system-ui`; g.fillText(l, cx + W * 0.07, cy + 2); }
+    // soft keys (thin bars) and the small keys either side of the ring
+    g.fillStyle = ink;
+    g.fillRect(W * 0.08, nav * 0.1, W * 0.2, 3); g.fillRect(W * 0.72, nav * 0.1, W * 0.2, 3);
+    g.beginPath(); g.arc(W * 0.12, nav * 0.42, mm * 0.9, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(W * 0.88, nav * 0.42, mm * 0.9, 0, Math.PI * 2); g.fill();
+    g.font = `700 ${mm * 2.6}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#3FBF5A'; g.fillText('✆', W * 0.12, nav * 0.78);
+    g.fillStyle = '#E0473F'; g.fillText('✆', W * 0.88, nav * 0.78);
+    // 4 × 3 number keys
+    const gy = nav, gh = H - nav - H * 0.03, rows = 4, rh = gh / rows;
+    for (let r = 0; r <= rows; r++) { g.beginPath(); g.moveTo(W * 0.04, gy + r * rh); g.lineTo(W * 0.96, gy + r * rh); g.stroke(); }
+    for (const x of [W / 3, (W * 2) / 3]) { g.beginPath(); g.moveTo(x, gy); g.lineTo(x, gy + gh); g.stroke(); }
+    const keys = [['1', 'o_o'], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']];
+    g.fillStyle = ink;
+    keys.forEach(([n, l], i) => {
+      const cx = W * (1 / 6 + (i % 3) / 3), cy = gy + (Math.floor(i / 3) + 0.5) * rh;
+      g.font = `600 ${rh * 0.46}px system-ui`; g.textAlign = 'right';
+      g.fillText(n, cx - W * 0.005, cy);
+      g.font = `500 ${rh * 0.2}px system-ui`; g.textAlign = 'left';
+      g.fillText(l, cx + W * 0.02, cy + rh * 0.04);
     });
   });
 }
@@ -274,15 +270,27 @@ function addFrontDetails(front, look, W, H, { sw, sh, bezelTop, bezelBottom, z }
     spk.position.set(0, H / 2 - bezelTop / 2, zt);
     front.add(spk);
   } else if (layout === 'slvr') {
-    const kh = bezelBottom - 4 * MM, kw = W - 5 * MM;
-    const pad = decalPlane(kw, kh, keypadTexture(kw / MM, kh / MM, look.keypad ?? '#A7ABB1'), { rough: 0.35, metal: 0.85, transparent: false });
-    pad.position.set(0, -H / 2 + 2 * MM + kh / 2, zt);
+    // L7e front: chrome emblem up top, MOTOROLA wordmark, flat navy keypad with a chrome nav ring
+    const kh = bezelBottom - 5 * MM, kw = W - 6 * MM;
+    const pad = decalPlane(kw, kh, keypadTexture(kw / MM, kh / MM, look.keypad ?? '#1C2550'), { rough: 0.3, metal: 0.2, transparent: false });
+    const padY = -H / 2 + 3.5 * MM + kh / 2;
+    pad.position.set(0, padY, zt);
     front.add(pad);
-    const wm = textPlane('MOTOROLA', W * 0.42, 2.2 * MM, { color: '#C9CCD0', weight: 600, spacing: 0.25 });
-    wm.position.set(0, H / 2 - bezelTop * 0.62, zt);
-    const ear = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.2, 0.8 * MM), dark);
-    ear.position.set(0, H / 2 - bezelTop * 0.22, zt);
-    front.add(wm, ear);
+    const navY = padY + kh / 2 - kh * 0.34 * 0.52;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(6.2 * MM, 1.9 * MM, 20, 64), chrome);
+    ring.scale.z = 0.35;
+    ring.position.set(0, navY, z + 0.35 * MM);
+    const centre = new THREE.Mesh(new THREE.CylinderGeometry(3.3 * MM, 3.3 * MM, 0.6 * MM, 40), new THREE.MeshPhysicalMaterial({ color: '#0B0E1C', roughness: 0.2, clearcoat: 0.6 }));
+    centre.rotation.x = Math.PI / 2; centre.position.set(0, navY, z + 0.3 * MM);
+    const embY = H / 2 - bezelTop * 0.36;
+    const emblem = new THREE.Mesh(new THREE.CylinderGeometry(4.2 * MM, 4.4 * MM, 0.6 * MM, 48), chrome);
+    emblem.rotation.x = Math.PI / 2; emblem.position.set(0, embY, z + 0.3 * MM);
+    const bat = logoMesh('motorola', 6 * MM, new THREE.MeshStandardMaterial({ color: '#2A2E3A', metalness: 0.6, roughness: 0.35 }));
+    bat.scale.x *= -1; // logoMesh reads from behind; this one faces the front
+    bat.position.set(0, embY, z + 0.62 * MM);
+    const wm = textPlane('MOTOROLA', W * 0.44, 2.0 * MM, { color: '#DDE2EE', weight: 700, spacing: 0.22 });
+    wm.position.set(0, H / 2 - bezelTop * 0.8, zt);
+    front.add(ring, centre, emblem, bat, wm);
   } else if (layout === 'karbonn') {
     // HTC-Desire-style front: grey glass around the screen, a white chin with a silver pill button
     const white = new THREE.MeshPhysicalMaterial({ color: look.back ?? "#F4F1EA", roughness: 0.32 });
@@ -400,7 +408,7 @@ function buildBackDetails(phone, W, H, backMat) {
     const cam = lens(r, 0.6 * MM); cam.position.set(0, H / 2 - 0.1 * H, -0.2 * MM);
     const seam = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.94, 0.25 * MM), new THREE.MeshStandardMaterial({ color: '#0A0A0B' }));
     seam.position.set(0, H / 2 - 0.2 * H, -0.03 * MM); seam.rotation.y = Math.PI;
-    const logo = logoMesh('motorola', 0.009, new THREE.MeshStandardMaterial({ color: '#8A8D93', metalness: 0.9, roughness: 0.3 }));
+    const logo = logoMesh('motorola', 0.009, new THREE.MeshStandardMaterial({ color: '#B8BDC8', metalness: 1, roughness: 0.25 }));
     logo.position.set(0, -0.02 * H, -0.08 * MM);
     const grille = holesPlane(W * 0.3, 2.4 * MM, { rows: 2, cols: 10 }); grille.rotation.y = Math.PI;
     grille.position.set(0, -H / 2 + 0.1 * H, -0.03 * MM);
