@@ -185,7 +185,7 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
   };
   // shrink a rectangle (from the side facing the nearest corner) until all four corners are inside the opening
   const fit = (r) => {
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 400; i++) {
       const bad = [[1, 1], [1, -1], [-1, 1], [-1, -1]].find(([sx, sy]) => outside(r.x + sx * r.w / 2, r.y + sy * r.h / 2));
       if (!bad) break;
       const [sx, sy] = bad;
@@ -194,6 +194,7 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
       const overX = Math.abs(r.x + sx * r.w / 2) - (inA - inR), overY = Math.abs(r.y + sy * r.h / 2) - (inB - inR);
       if (overX < overY && r.w > 1 * MM) { r.w -= step; r.x -= sx * step / 2; }
       else if (r.h > 1 * MM) { r.h -= step; r.y -= sy * step / 2; }
+      else if (r.w > 1 * MM) { r.w -= step; r.x -= sx * step / 2; } // thin strips: shorten instead
       else break;
     }
     return r;

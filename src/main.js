@@ -69,6 +69,15 @@ function interiorShadows(model, on) {
   model.interior?.traverse((o) => { if (o.isMesh) o.castShadow = on; });
 }
 
+// A soft light that travels with the camera, like a product-photo key light. It is faint while
+// browsing (the room sets the mood) and comes up when a phone is in hand, so dark phones
+// such as the navy SLVR read as their real colour instead of sinking into shadow.
+const handLight = new THREE.DirectionalLight('#ffffff', 0.25);
+handLight.position.set(0.35, 0.45, 0);
+handLight.target.position.set(0, -0.1, -1);
+camera.add(handLight, handLight.target);
+scene.add(camera);
+
 // ---------- phones on stands ----------
 const personal = data.personal;
 const SLOTS = personal.length + 1; // one extra, empty stand for the next phone
@@ -721,6 +730,8 @@ function frame() {
   const dt = Math.min((now - last) / 1000, 0.05);
   last = now;
   updateCamera();
+  const want = state.mode === 'held' || state.mode === 'open' || (state.mode === 'moving' && state.held) ? 1.5 : 0.25;
+  handLight.intensity += (want - handLight.intensity) * Math.min(1, dt * 4);
   // gentle inertia after a flick
   if (state.held && !drag.down && state.mode === 'held' && (Math.abs(drag.vx) > 0.05 || Math.abs(drag.vy) > 0.05)) {
     rotateHeld(drag.vx, drag.vy);

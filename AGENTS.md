@@ -32,6 +32,8 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 | `src/data/phones.json` | All content: `personal` phones (in order), `work` phones (same shape, compared with each other), `next` (empty stand). |
 | `src/main.js` | Renderer, environment maps, stands/slots, camera rig, state machine (`browse → moving → held → open`, `overhead`), UI panels, input, analytics calls. |
 | `src/scene/phone.js` | Procedural phone exteriors. Per-design tables: `BEZELS`, `CORNER`; functions `addFrontDetails`, `buildBackDetails`, `addButtons`. Exports shared helpers (`MM`, `slab`, `lens`, `logoMesh`, `mats`). |
+| `src/scene/slvr.js` | SLVR L7e exterior traced from its product photos (outline, front/back faces, chrome parts). |
+| `src/scene/karbonn.js` | Karbonn A7 body traced from its product photos: its own cross-section (glass, band, pebble back cover), faces and parts. Hooked in through `BODIES` in `phone.js`. |
 | `src/scene/interior.js` | Procedural teardown interiors, one branch per `look.backLayout`, built in "viewer space". |
 | `src/scene/showroom.js` | Room (wood floor/walls), marble tables, stands, lights. |
 | `src/specs.js` | Spec comparison rows (linear bars vs previous phone, ▲/▼ jump badges). |
@@ -48,6 +50,9 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 - Interior rectangles go through `R()`, which trims them to the frame's rounded opening — keep using it so nothing pokes through big iPhone corners.
 - Teardown parts: `u`, `v`, `w`, `h` are fractions of the interior seen from the opened side, `u`/`v` from the bottom-left.
   They only position modelled parts; the part-dots/hotspot feature was removed on purpose — don't bring it back unasked.
+- Exteriors are modelled in code but traced from real product photos: measure features in mm on a front/back photo
+  scaled to the phone's real size and place them 1:1 (see `src/scene/slvr.js` and `src/scene/karbonn.js` for the pattern; references live in the
+  git-ignored `reference/` folder). CC-BY models and manufacturer photos are fine as references.
 - Interiors are modelled in code. iFixit photos may be used as a *layout reference* only; don't ship them in `public/`
   (keep references in the git-ignored `reference/` folder).
 - Canvas textures are drawn procedurally. Don't copy real product artwork; printed labels use our own wording.
