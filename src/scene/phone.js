@@ -515,10 +515,26 @@ export function buildPhone(phone, { simple = false } = {}) {
   // front/back plates sit inside the rounded edge when the sides are pill-shaped
   const plateInset = side ? 2 * bs + 0.3 * MM : 0.4 * MM;
   outer.holes.push(new THREE.Path(inner.getPoints(24)));
-  const frameGeo = new THREE.ExtrudeGeometry(outer, { depth: D - bev * 2, bevelEnabled: true, bevelThickness: bev, bevelSize: bs, bevelSegments: 4, curveSegments: 24 });
-  frameGeo.translate(0, 0, -(D - bev * 2) / 2);
-  const frame = new THREE.Mesh(frameGeo, frameMat);
-  frame.castShadow = true;
+  let frame;
+  if (side) {
+    // two shells (front and back housing) that meet in a fine groove round the middle,
+    // like the real candybar: it reads as two thin halves rather than one thick block
+    frame = new THREE.Group();
+    const half = D / 2, hb = Math.min(bev, half * 0.35);
+    const backShellMat = frameMat.clone(); backShellMat.color.set(look.back ?? bodyColor);
+    for (const [sgn, mat] of [[1, frameMat], [-1, backShellMat]]) {
+      const geo = new THREE.ExtrudeGeometry(outer, { depth: half - hb * 2, bevelEnabled: true, bevelThickness: hb, bevelSize: bs, bevelSegments: 4, curveSegments: 24 });
+      geo.translate(0, 0, sgn > 0 ? hb : -half + hb);
+      const m = new THREE.Mesh(geo, mat);
+      m.castShadow = true;
+      frame.add(m);
+    }
+  } else {
+    const frameGeo = new THREE.ExtrudeGeometry(outer, { depth: D - bev * 2, bevelEnabled: true, bevelThickness: bev, bevelSize: bs, bevelSegments: 4, curveSegments: 24 });
+    frameGeo.translate(0, 0, -(D - bev * 2) / 2);
+    frame = new THREE.Mesh(frameGeo, frameMat);
+    frame.castShadow = true;
+  }
   root.add(frame);
 
   const glassT = 0.8 * MM;

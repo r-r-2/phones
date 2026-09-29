@@ -13,7 +13,8 @@ const MM = 0.001;
 // Outline: the top and bottom edges are gentle arcs, the sides are straight.
 export const SLVR_OUTLINE = { top: 4.0 * MM, bot: 3.7 * MM, cvTop: 7.8 * MM, cvBot: 8.2 * MM, ch: 2.5 * MM };
 // Rounded sides (the body is a soft pill in cross-section, not a flat slab).
-export const SLVR_SIDE = { bev: 2.2 * MM, bs: 1.1 * MM };
+// Sides: flat walls with a small rounded edge (the phone is a thin slab, not a pill).
+export const SLVR_SIDE = { bev: 1.3 * MM, bs: 0.9 * MM };
 // Screen (LCD) placement: side, top, bottom bezels in mm.
 export const SLVR_BEZELS = [9.05, 18.5, 55.5];
 
@@ -222,7 +223,7 @@ export function slvrFront(front, W, H, z, bezels) {
   const wmm = W / MM, hmm = H / MM;
   const face = new THREE.Mesh(
     // the face sits inside the rounded side edges; UVs span the full body so photo mm map 1:1
-    flatShape(archedShape(W - 2.6 * MM, H - 2.6 * MM, SLVR_OUTLINE), W, H),
+    flatShape(archedShape(W - 2.2 * MM, H - 2.2 * MM, SLVR_OUTLINE), W, H),
     new THREE.MeshPhysicalMaterial({ map: frontTexture(wmm, hmm), roughness: 0.28, clearcoat: 0.5, clearcoatRoughness: 0.12, metalness: 0.15 }),
   );
   face.material.userData.envScale = 0.5;
@@ -231,9 +232,9 @@ export function slvrFront(front, W, H, z, bezels) {
   // mm on the photo → local position
   const at = (xmm, ymm) => new THREE.Vector2((xmm - wmm / 2) * MM, (hmm / 2 - ymm) * MM);
 
-  const e = emblem(4.0 * MM, 0.7 * MM, 1);
+  const e = emblem(4.0 * MM, 0.4 * MM, 1);
   const ep = at(24.5, 4.3);
-  e.position.set(ep.x, ep.y, z + 0.35 * MM);
+  e.position.set(ep.x, ep.y, z + 0.2 * MM); // sits only ~0.4 mm proud of the face
   front.add(e);
 
   // navigation ring: domed chrome ring, dark centre key with a thin bright rim, four arrow ticks
@@ -241,24 +242,24 @@ export function slvrFront(front, W, H, z, bezels) {
   const prof = [];
   for (let i = 0; i <= 12; i++) {
     const t = i / 12, rr = 3.9 + t * 4.1;
-    prof.push(new THREE.Vector2(rr * MM, (0.75 * Math.sin(Math.PI * (0.15 + 0.7 * t)) * MM)));
+    prof.push(new THREE.Vector2(rr * MM, (0.35 * Math.sin(Math.PI * (0.15 + 0.7 * t)) * MM)));
   }
   prof.push(new THREE.Vector2(8.0 * MM, 0), new THREE.Vector2(3.9 * MM, 0));
   const ringMat = chrome(); ringMat.side = THREE.DoubleSide;
   const ring = new THREE.Mesh(new THREE.LatheGeometry(prof, 72), ringMat);
   ring.rotation.x = Math.PI / 2;
   ring.position.set(np.x, np.y, z);
-  const centre = new THREE.Mesh(new THREE.CylinderGeometry(3.25 * MM, 3.25 * MM, 0.5 * MM, 48),
+  const centre = new THREE.Mesh(new THREE.CylinderGeometry(3.25 * MM, 3.25 * MM, 0.3 * MM, 48),
     new THREE.MeshPhysicalMaterial({ color: '#0c1024', roughness: 0.15, clearcoat: 0.8 }));
-  centre.rotation.x = Math.PI / 2; centre.position.set(np.x, np.y, z + 0.25 * MM);
+  centre.rotation.x = Math.PI / 2; centre.position.set(np.x, np.y, z + 0.15 * MM);
   const rim = new THREE.Mesh(new THREE.TorusGeometry(3.55 * MM, 0.22 * MM, 12, 64), chrome());
-  rim.position.set(np.x, np.y, z + 0.35 * MM);
+  rim.position.set(np.x, np.y, z + 0.22 * MM);
   front.add(ring, centre, rim);
   const tick = new THREE.MeshStandardMaterial({ color: '#8d93a6', metalness: 0.8, roughness: 0.3 });
   for (let k = 0; k < 4; k++) {
     const a = (k * Math.PI) / 2;
     const tri = new THREE.Mesh(new THREE.CircleGeometry(0.45 * MM, 3), tick);
-    tri.position.set(np.x + Math.cos(a) * 6.1 * MM, np.y + Math.sin(a) * 6.1 * MM, z + 0.78 * MM);
+    tri.position.set(np.x + Math.cos(a) * 6.1 * MM, np.y + Math.sin(a) * 6.1 * MM, z + 0.37 * MM);
     tri.rotation.z = a;
     front.add(tri);
   }
@@ -269,7 +270,7 @@ export function slvrFront(front, W, H, z, bezels) {
 export function slvrBack(g, W, H, backMat) {
   const wmm = W / MM, hmm = H / MM;
   const face = new THREE.Mesh(
-    flatShape(archedShape(W - 2.6 * MM, H - 2.6 * MM, SLVR_OUTLINE), W, H),
+    flatShape(archedShape(W - 2.2 * MM, H - 2.2 * MM, SLVR_OUTLINE), W, H),
     new THREE.MeshPhysicalMaterial({ map: backTexture(wmm, hmm), roughness: 0.42, metalness: 0.35 }),
   );
   face.rotation.y = Math.PI; // reads correctly from behind
@@ -281,26 +282,26 @@ export function slvrBack(g, W, H, backMat) {
   // camera window: a glossy black trapezoid with the lens and "MEGA PIXEL" under it
   const tz = new THREE.Shape();
   tz.moveTo(-7.1 * MM, 5.4 * MM); tz.lineTo(7.1 * MM, 5.4 * MM); tz.lineTo(6.2 * MM, -5.4 * MM); tz.lineTo(-6.2 * MM, -5.4 * MM); tz.lineTo(-7.1 * MM, 5.4 * MM);
-  const win = new THREE.Mesh(new THREE.ExtrudeGeometry(tz, { depth: 0.35 * MM, bevelEnabled: true, bevelThickness: 0.15 * MM, bevelSize: 0.3 * MM, bevelSegments: 2 }),
+  const win = new THREE.Mesh(new THREE.ExtrudeGeometry(tz, { depth: 0.15 * MM, bevelEnabled: true, bevelThickness: 0.08 * MM, bevelSize: 0.2 * MM, bevelSegments: 2 }),
     new THREE.MeshPhysicalMaterial({ color: '#0d0f13', roughness: 0.1, clearcoat: 1 }));
   const wp = at(24.5, 7.2);
-  win.position.set(wp.x, wp.y, -0.5 * MM);
+  win.position.set(wp.x, wp.y, -0.25 * MM); // near-flush window
   g.add(win);
   const lp = at(24.5, 6.6);
-  const l = lens(2.2 * MM, 0.6 * MM); l.position.set(lp.x, lp.y, -0.75 * MM); g.add(l);
-  const lr = new THREE.Mesh(new THREE.TorusGeometry(2.55 * MM, 0.32 * MM, 12, 48), chrome());
-  lr.position.set(lp.x, lp.y, -0.7 * MM); g.add(lr);
+  const l = lens(2.2 * MM, 0.3 * MM); l.position.set(lp.x, lp.y, -0.3 * MM); g.add(l);
+  const lr = new THREE.Mesh(new THREE.TorusGeometry(2.55 * MM, 0.18 * MM, 12, 48), chrome());
+  lr.position.set(lp.x, lp.y, -0.3 * MM); g.add(lr);
   const label = document.createElement('canvas'); label.width = 256; label.height = 32;
   const lg = label.getContext('2d'); lg.fillStyle = '#e6e8ee'; lg.font = '700 22px Arial'; lg.textAlign = 'center'; lg.fillText('MEGA PIXEL', 128, 24);
   const lt = new THREE.CanvasTexture(label); lt.colorSpace = THREE.SRGBColorSpace;
   const lab = new THREE.Mesh(new THREE.PlaneGeometry(7 * MM, 0.9 * MM), new THREE.MeshBasicMaterial({ map: lt, transparent: true }));
   const labp = at(24.5, 10.9);
-  lab.rotation.y = Math.PI; lab.position.set(labp.x, labp.y, -0.87 * MM); g.add(lab);
+  lab.rotation.y = Math.PI; lab.position.set(labp.x, labp.y, -0.36 * MM); g.add(lab);
 
   // chrome Motorola disc
-  const e = emblem(5.1 * MM, 0.45 * MM, -1);
+  const e = emblem(5.1 * MM, 0.25 * MM, -1);
   const ep = at(24.5, 42);
-  e.position.set(ep.x, ep.y, -0.25 * MM);
+  e.position.set(ep.x, ep.y, -0.12 * MM);
   g.add(e);
   void backMat;
 }
