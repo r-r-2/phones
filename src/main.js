@@ -63,6 +63,12 @@ function neutralMetals(root, allMaterials = false) {
   });
 }
 
+// Inside parts only cast shadows while the phone is open; closed, their shadow-map edges
+// leaked through the back glass as thin dark lines.
+function interiorShadows(model, on) {
+  model.interior?.traverse((o) => { if (o.isMesh) o.castShadow = on; });
+}
+
 // ---------- phones on stands ----------
 const personal = data.personal;
 const SLOTS = personal.length + 1; // one extra, empty stand for the next phone
@@ -76,6 +82,8 @@ const items = personal.map((p, i) => {
   if (p.enabled) {
     model = buildPhone(p);
     neutralMetals(model.root, true);
+  interiorShadows(model, false);
+    interiorShadows(model, false);
     model.root.userData.item = i;
     stand.userData.mount.add(model.root);
   }
@@ -445,9 +453,10 @@ function openUp() {
     const c = model.cover;
     c.userData.home ??= c.position.clone();
     gsap.to(c.position, {
-      x: c.userData.home.x + W * 1.12, z: c.userData.home.z + model.openSide * 0.02,
+      // always slide the cover to the viewer's right; the battery lifts out to the left
+      x: c.userData.home.x + model.openSide * W * 1.12, z: c.userData.home.z + model.openSide * 0.02,
       duration: D(1.0), ease: 'power2.inOut',
-      onComplete: () => { state.mode = 'open'; state.step = 1; renderControls(); buildHotspots(); },
+      onComplete: () => { state.mode = 'open'; state.step = 1; interiorShadows(model, true); renderControls(); buildHotspots(); },
     });
     gsap.to(c.rotation, { y: model.openSide * 0.35, duration: D(1.0), ease: 'power2.inOut' });
   });
@@ -486,6 +495,7 @@ function closeUp(done) {
   const { model } = state.held;
   state.mode = 'moving';
   clearHotspots();
+  interiorShadows(model, false);
   model.setBatteryOut?.(false);
   const b = model.battery;
   if (b?.userData.home) {
@@ -819,4 +829,4 @@ function showIntro() {
 track('view_phone', { phone_id: enabled[state.cur].phone.id, phone_name: enabled[state.cur].phone.name, source: 'start' });
 
 // handy for debugging in the console
-window.__showroom = { state, view, camera, scene, goTo, pickUp, openUp, toggleBattery, goOverhead, goWork, putBack, closeUp };
+window.__showroom = { THREE, items, workItems, state, view, camera, scene, goTo, pickUp, openUp, toggleBattery, goOverhead, goWork, putBack, closeUp };

@@ -44,6 +44,8 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 
 - Units: 1 scene unit = 1 metre; use `MM` (0.001) for phone dimensions. Phone local axes: +x right, +y up, +z out of the screen.
 - Phones are built from real dimensions (`dimensionsMm`) so relative sizes are true — don't scale them for looks.
+  `window.__showroom.THREE` / `items` / `workItems` are exposed so you can measure models (Box3) in a script.
+- Interior rectangles go through `R()`, which trims them to the frame's rounded opening — keep using it so nothing pokes through big iPhone corners.
 - Teardown parts: `u`, `v`, `w`, `h` are fractions of the interior seen from the opened side, `u`/`v` from the bottom-left.
   `spec` links a hotspot to a spec row; `underBattery: true` shows the dot only after the battery is lifted.
 - Interiors are modelled in code. iFixit photos may be used as a *layout reference* only; don't ship them in `public/`

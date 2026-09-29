@@ -171,10 +171,10 @@
         "Custom ROMs"
       ],
       "look": {
-        "front": "#F3EFE6",
-        "frame": "#D9D6CF",
-        "frameRoughness": 0.2,
-        "back": "#EFE9DC",
+        "front": "#3F4247",
+        "frame": "#BFC2C6",
+        "frameRoughness": 0.25,
+        "back": "#F4F1EA",
         "backMetalness": 0,
         "backRoughness": 0.32,
         "wallpaper": [

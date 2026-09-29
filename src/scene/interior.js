@@ -160,14 +160,16 @@ function finePrint(g, x, y, w, rows, lh, color, r) {
 
 // ---------- builder ----------
 
-export function buildDetailedInterior(phone, W, H, D, side) {
+export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
   const root = new THREE.Group();
   const g = new THREE.Group(); // viewer space
   if (side < 0) g.rotation.y = Math.PI;
   root.add(g);
   const anchors = new Map();
 
-  const plate = new THREE.Mesh(slab(W - 2 * MM, H - 2 * MM, 5 * MM, 0.6 * MM), mats.plate);
+  // everything inside has to stay within the frame's rounded opening, or square corners poke through it
+  const inA = W / 2 - 1.5 * MM, inB = H / 2 - 1.5 * MM, inR = Math.max(cornerR - 1.5 * MM, 0.5 * MM);
+  const plate = new THREE.Mesh(slab(W - 2.4 * MM, H - 2.4 * MM, Math.max(cornerR - 1.2 * MM, 1 * MM), 0.6 * MM), mats.plate);
   plate.receiveShadow = true;
   root.add(plate);
 
@@ -176,7 +178,28 @@ export function buildDetailedInterior(phone, W, H, D, side) {
   const room = D / 2 - 1.4 * MM;
 
   // u,v rectangle → centre/size in metres
-  const R = (u0, v0, u1, v1) => ({ x: ((u0 + u1) / 2 - 0.5) * IW, y: ((v0 + v1) / 2 - 0.5) * IH, w: (u1 - u0) * IW, h: (v1 - v0) * IH });
+  const outside = (x, y) => {
+    const ax = Math.abs(x), ay = Math.abs(y);
+    if (ax > inA || ay > inB) return true;
+    const cx = inA - inR, cy = inB - inR;
+    return ax > cx && ay > cy && Math.hypot(ax - cx, ay - cy) > inR;
+  };
+  // shrink a rectangle (from the side facing the nearest corner) until all four corners are inside the opening
+  const fit = (r) => {
+    for (let i = 0; i < 200; i++) {
+      const bad = [[1, 1], [1, -1], [-1, 1], [-1, -1]].find(([sx, sy]) => outside(r.x + sx * r.w / 2, r.y + sy * r.h / 2));
+      if (!bad) break;
+      const [sx, sy] = bad;
+      const step = 0.2 * MM;
+      // trim whichever side is closer to the rounded corner's straight edge
+      const overX = Math.abs(r.x + sx * r.w / 2) - (inA - inR), overY = Math.abs(r.y + sy * r.h / 2) - (inB - inR);
+      if (overX < overY && r.w > 1 * MM) { r.w -= step; r.x -= sx * step / 2; }
+      else if (r.h > 1 * MM) { r.h -= step; r.y -= sy * step / 2; }
+      else break;
+    }
+    return r;
+  };
+  const R = (u0, v0, u1, v1) => fit({ x: ((u0 + u1) / 2 - 0.5) * IW, y: ((v0 + v1) / 2 - 0.5) * IH, w: (u1 - u0) * IW, h: (v1 - v0) * IH });
   const P = (u, v) => new THREE.Vector2((u - 0.5) * IW, (v - 0.5) * IH);
 
   const add = (m, parent = g) => { m.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); parent.add(m); return m; };
@@ -266,8 +289,10 @@ export function buildDetailedInterior(phone, W, H, D, side) {
     add(new THREE.Mesh(new THREE.TubeGeometry(curve, 48, rMm * MM, 8), M.coax));
   };
   const camera = (u, v, sizeMm, zTop, { square = true, lenses = 1 } = {}) => {
-    const p = P(u, v);
-    const s = sizeMm * MM;
+    const p0 = P(u, v);
+    const fr = fit({ x: p0.x, y: p0.y, w: sizeMm * MM, h: sizeMm * MM });
+    const p = { x: fr.x, y: fr.y };
+    const s = Math.min(fr.w, fr.h);
     const h = new THREE.Mesh(new RoundedBoxGeometry(s, s, zTop - Z0, 2, 0.6 * MM), M.plastic);
     h.position.set(p.x, p.y, Z0 + (zTop - Z0) / 2);
     add(h);
@@ -480,7 +505,9 @@ export function buildDetailedInterior(phone, W, H, D, side) {
     const is7 = layout === 'iphone7p';
     const chip = phone.specs?.processor?.chip ?? 'A8';
     // these phones have a bare aluminium rear case inside
-    box(R(0.005, 0.005, 0.995, 0.995), 0.12 * MM, M.chassis, Z0 - 0.1 * MM, 0.05 * MM);
+    const alu = new THREE.Mesh(slab(inA * 2, inB * 2, inR, 0.12 * MM), M.chassis);
+    alu.position.z = Z0 - 0.04 * MM;
+    add(alu);
     const mah = phone.specs?.batteryMah ?? 2915;
     const board = pcb(0.69, 0.28, 0.965, 0.975, is7 ? 71 : 61);
     const soc = shield(0.71, 0.58, 0.95, 0.76, 0.45 * MM, { holes: 0, seed: is7 ? 72 : 62, mark: chip.toUpperCase() });

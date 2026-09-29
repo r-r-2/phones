@@ -284,22 +284,27 @@ function addFrontDetails(front, look, W, H, { sw, sh, bezelTop, bezelBottom, z }
     ear.position.set(0, H / 2 - bezelTop * 0.22, zt);
     front.add(wm, ear);
   } else if (layout === 'karbonn') {
-    const ear = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.2, 1.1 * MM), new THREE.MeshStandardMaterial({ color: '#8E8A82', roughness: 0.4, metalness: 0.6 }));
-    ear.position.set(0, H / 2 - bezelTop * 0.45, zt);
-    const cam = new THREE.Mesh(new THREE.CircleGeometry(0.9 * MM, 24), dark);
-    cam.position.set(W * 0.22, H / 2 - bezelTop * 0.45, zt);
-    // four capacitive keys: menu · home · back · search
-    const keys = canvasTexture(600, 60, (g, Wc, Hc) => {
-      g.strokeStyle = '#8B877E'; g.fillStyle = '#8B877E'; g.lineWidth = 5; g.lineCap = 'round';
-      const cx = (i) => Wc * (0.125 + i * 0.25), cy = Hc / 2;
-      g.beginPath(); for (let k = -1; k <= 1; k++) { g.moveTo(cx(0) - 14, cy + k * 10); g.lineTo(cx(0) + 14, cy + k * 10); } g.stroke();
-      g.beginPath(); g.moveTo(cx(1) - 16, cy + 2); g.lineTo(cx(1), cy - 14); g.lineTo(cx(1) + 16, cy + 2); g.moveTo(cx(1) - 11, cy); g.lineTo(cx(1) - 11, cy + 16); g.lineTo(cx(1) + 11, cy + 16); g.lineTo(cx(1) + 11, cy); g.stroke();
-      g.beginPath(); g.arc(cx(2), cy + 2, 12, -Math.PI * 0.5, Math.PI * 0.6); g.moveTo(cx(2), cy - 10); g.lineTo(cx(2) - 16, cy - 10); g.moveTo(cx(2) - 16, cy - 10); g.lineTo(cx(2) - 8, cy - 18); g.stroke();
-      g.beginPath(); g.arc(cx(3) - 3, cy - 3, 10, 0, Math.PI * 2); g.moveTo(cx(3) + 5, cy + 5); g.lineTo(cx(3) + 14, cy + 14); g.stroke();
+    // HTC-Desire-style front: grey glass around the screen, a white chin with a silver pill button
+    const white = new THREE.MeshPhysicalMaterial({ color: look.back ?? "#F4F1EA", roughness: 0.32 });
+    white.userData.envScale = 0.6;
+    const chinH = bezelBottom - 2 * MM;
+    const chin = new THREE.Mesh(slab(W - 0.8 * MM, chinH, Math.min(W, H) * 0.14, 0.8 * MM, 0.3 * MM), white);
+    chin.position.set(0, -H / 2 + 0.4 * MM + chinH / 2, z);
+    const silver = new THREE.MeshStandardMaterial({ color: '#C9CCD0', metalness: 1, roughness: 0.22 });
+    const pill = new THREE.Mesh(new RoundedBoxGeometry(10 * MM, 4.6 * MM, 1.0 * MM, 3, 1.2 * MM), silver);
+    pill.position.set(0, chin.position.y + 0.5 * MM, z + 0.5 * MM);
+    const keys = canvasTexture(400, 60, (g, Wc, Hc) => {
+      g.strokeStyle = '#9A968D'; g.lineWidth = 5; g.lineCap = 'round';
+      g.beginPath(); for (let k = -1; k <= 1; k++) { g.moveTo(30, Hc / 2 + k * 10); g.lineTo(62, Hc / 2 + k * 10); } g.stroke();
+      g.beginPath(); g.arc(Wc - 46, Hc / 2 + 2, 13, -Math.PI * 0.5, Math.PI * 0.6); g.moveTo(Wc - 46, Hc / 2 - 11); g.lineTo(Wc - 62, Hc / 2 - 11); g.lineTo(Wc - 54, Hc / 2 - 19); g.stroke();
     });
-    const kp = decalPlane(sw, sw * 0.1, keys);
-    kp.position.set(0, -H / 2 + bezelBottom * 0.5, zt);
-    front.add(ear, cam, kp);
+    const kp = decalPlane(W * 0.72, W * 0.72 * 0.15, keys);
+    kp.position.set(0, pill.position.y, z + 0.42 * MM);
+    const ear = new THREE.Mesh(new RoundedBoxGeometry(W * 0.2, 1.4 * MM, 0.3 * MM, 2, 0.15 * MM), silver);
+    ear.position.set(0, H / 2 - bezelTop * 0.45, z + 0.05 * MM);
+    const cam = new THREE.Mesh(new THREE.CircleGeometry(0.9 * MM, 24), dark);
+    cam.position.set(W * 0.2, H / 2 - bezelTop * 0.45, zt);
+    front.add(chin, pill, kp, ear, cam);
   } else if (layout === 'motoe') {
     // chrome earpiece and loudspeaker grilles above and below the screen
     for (const [y, wf] of [[H / 2 - bezelTop * 0.5, 0.36], [-H / 2 + bezelBottom * 0.5, 0.36]]) {
@@ -351,15 +356,15 @@ function buildBackDetails(phone, W, H, backMat) {
     const cx = W / 2 - 0.13 * W, cy = H / 2 - 0.085 * W;
     if (is7) {
       // dual-camera pill
-      const pill = new THREE.Mesh(slab(r * 5.2, r * 2.6, r * 1.3, 1.0 * MM, 0.25 * MM), backMat);
-      pill.position.set(cx - r * 1.3, cy, -0.4 * MM);
-      const l1 = lens(r, 1.4 * MM); l1.position.set(cx, cy, -1.0 * MM);
-      const l2 = lens(r, 1.4 * MM); l2.position.set(cx - r * 2.6, cy, -1.0 * MM);
+      const pill = new THREE.Mesh(slab(r * 5.2, r * 2.6, r * 1.3, 0.7 * MM, 0.25 * MM), backMat);
+      pill.position.set(cx - r * 1.3, cy, -0.3 * MM);
+      const l1 = lens(r, 0.9 * MM); l1.position.set(cx, cy, -0.55 * MM);
+      const l2 = lens(r, 0.9 * MM); l2.position.set(cx - r * 2.6, cy, -0.55 * MM);
       g.add(pill, l1, l2);
     } else {
       const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.15, 0.45 * MM, 12, 40), new THREE.MeshStandardMaterial({ color: '#8C8F94', metalness: 1, roughness: 0.25 }));
-      ring.position.set(cx, cy, -0.5 * MM);
-      const l = lens(r, 1.2 * MM); l.position.set(cx, cy, -0.8 * MM);
+      ring.position.set(cx, cy, -0.3 * MM);
+      const l = lens(r, 0.8 * MM); l.position.set(cx, cy, -0.35 * MM);
       g.add(ring, l);
     }
     const fl = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55, r * 0.55, 0.3 * MM, 24), mats.flash);
@@ -378,7 +383,7 @@ function buildBackDetails(phone, W, H, backMat) {
     g.add(fl, logo);
   } else if (layout === 'redmi') {
     const r = 0.075 * W;
-    const cam = lens(r, 1.0 * MM); cam.position.set(0, H / 2 - 0.13 * H, -0.5 * MM);
+    const cam = lens(r, 0.6 * MM); cam.position.set(0, H / 2 - 0.13 * H, -0.2 * MM); // near-flush
     const fl = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.45, r * 0.45, 0.3 * MM, 24), mats.flash);
     fl.rotation.x = Math.PI / 2; fl.position.set(0, H / 2 - 0.13 * H - r * 2.1, -0.2 * MM);
     const fp = new THREE.Mesh(new THREE.TorusGeometry(r * 1.05, 0.35 * MM, 12, 40), mats.lensRing);
@@ -392,7 +397,7 @@ function buildBackDetails(phone, W, H, backMat) {
     g.add(cam, fl, fp, s1, s2, logo);
   } else if (layout === 'slvr') {
     const r = 0.1 * W;
-    const cam = lens(r, 0.8 * MM); cam.position.set(0, H / 2 - 0.1 * H, -0.4 * MM);
+    const cam = lens(r, 0.6 * MM); cam.position.set(0, H / 2 - 0.1 * H, -0.2 * MM);
     const seam = new THREE.Mesh(new THREE.PlaneGeometry(W * 0.94, 0.25 * MM), new THREE.MeshStandardMaterial({ color: '#0A0A0B' }));
     seam.position.set(0, H / 2 - 0.2 * H, -0.03 * MM); seam.rotation.y = Math.PI;
     const logo = logoMesh('motorola', 0.009, new THREE.MeshStandardMaterial({ color: '#8A8D93', metalness: 0.9, roughness: 0.3 }));
@@ -401,21 +406,23 @@ function buildBackDetails(phone, W, H, backMat) {
     grille.position.set(0, -H / 2 + 0.1 * H, -0.03 * MM);
     g.add(cam, seam, logo, grille);
   } else if (layout === 'karbonn') {
-    const r = 0.075 * W;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.35, 0.5 * MM, 12, 40), new THREE.MeshStandardMaterial({ color: '#C8C5BE', metalness: 1, roughness: 0.2 }));
-    ring.position.set(0, H / 2 - 0.14 * H, -0.2 * MM);
-    const cam = lens(r, 0.8 * MM); cam.position.set(0, H / 2 - 0.14 * H, -0.4 * MM);
-    const fl1 = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.38, r * 0.38, 0.3 * MM, 20), mats.flash);
-    fl1.rotation.x = Math.PI / 2; fl1.position.set(r * 2.6, H / 2 - 0.14 * H + r * 0.5, -0.15 * MM);
-    const fl2 = fl1.clone(); fl2.position.y -= r;
-    const wm = textPlane('KARBONN', W * 0.42, 3 * MM, { color: '#9C968B', weight: 800, spacing: 0.12 });
-    wm.rotation.y = Math.PI; wm.position.set(0, -0.08 * H, -0.03 * MM);
-    const grille = holesPlane(W * 0.34, 2.4 * MM, { rows: 1, cols: 7, round: false }); grille.rotation.y = Math.PI;
-    grille.position.set(0, -H / 2 + 0.1 * H, -0.03 * MM);
-    g.add(ring, cam, fl1, fl2, wm, grille);
+    // camera with its signature red ring, flash beside it, red wordmark and a small two-slot speaker
+    const r = 0.075 * W, cy = H / 2 - 0.14 * H;
+    const red = new THREE.MeshPhysicalMaterial({ color: '#C8202E', roughness: 0.25, clearcoat: 0.6 });
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.3, 0.8 * MM, 16, 48), red);
+    ring.scale.z = 0.5; // a flat red bezel, not a donut
+    ring.position.set(0, cy, -0.15 * MM);
+    const cam = lens(r, 0.6 * MM); cam.position.set(0, cy, -0.2 * MM);
+    const fl = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.42, r * 0.42, 0.3 * MM, 20), mats.flash);
+    fl.rotation.x = Math.PI / 2; fl.position.set(-r * 2.9, cy, -0.15 * MM);
+    const wm = textPlane('Karbonn', W * 0.34, 3.2 * MM, { color: '#C8202E', weight: 700 });
+    wm.rotation.y = Math.PI; wm.position.set(0, -0.2 * H, -0.03 * MM);
+    const grille = holesPlane(W * 0.14, 2.2 * MM, { rows: 2, cols: 1, round: false }); grille.rotation.y = Math.PI;
+    grille.position.set(0, -0.28 * H, -0.03 * MM);
+    g.add(ring, cam, fl, wm, grille);
   } else if (layout === 'motoe') {
     const r = 0.07 * W;
-    const cam = lens(r, 0.8 * MM); cam.position.set(0, H / 2 - 0.13 * H, -0.4 * MM);
+    const cam = lens(r, 0.6 * MM); cam.position.set(0, H / 2 - 0.13 * H, -0.2 * MM);
     // the dimple with the Motorola batwing below the camera
     const dimple = new THREE.Mesh(new THREE.CircleGeometry(r * 1.6, 40), new THREE.MeshStandardMaterial({ color: '#141416', roughness: 0.45, metalness: 0.2 }));
     dimple.rotation.y = Math.PI; dimple.position.set(0, H / 2 - 0.25 * H, -0.02 * MM);
@@ -577,14 +584,17 @@ export function buildPhone(phone, { simple = false } = {}) {
     });
   // Colour-infused glass should read as its own colour, with only a soft sheen of the room on top
   if (!isMetalBack && (look.backRoughness ?? 0.08) <= 0.25) backMat.userData.envScale = 0.3;
-  const frontMat = new THREE.MeshPhysicalMaterial({ color: look.front ?? '#050506', roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1 });
+  const frontMat = new THREE.MeshPhysicalMaterial({ color: look.front ?? '#050506', roughness: 0.12, clearcoat: 0.25, clearcoatRoughness: 0.05, specularIntensity: 0.4, envMapIntensity: 1 });
+  // grazing reflections on the glass edge were drawing a bright outline round dark phones
+  frontMat.userData.envScale = 0.35;
 
   // Frame ring (hollow so the interior shows once a cover is lifted)
-  const outer = roundedRectShape(W, H, r);
-  const inner = roundedRectShape(W - 2.2 * MM, H - 2.2 * MM, Math.max(r - 1.1 * MM, 0.5 * MM));
+  // the bevel grows the outline by bevelSize, so draw the shape that much smaller to keep the real width/height
+  const bev = Math.min(0.9 * MM, D * 0.15), bs = bev * 0.6;
+  const outer = roundedRectShape(W - 2 * bs, H - 2 * bs, r - bs);
+  const inner = roundedRectShape(W - 2.2 * MM + 2 * bs, H - 2.2 * MM + 2 * bs, Math.max(r - 1.1 * MM + bs, 0.5 * MM));
   outer.holes.push(new THREE.Path(inner.getPoints(24)));
-  const bev = Math.min(0.9 * MM, D * 0.15);
-  const frameGeo = new THREE.ExtrudeGeometry(outer, { depth: D - bev * 2, bevelEnabled: true, bevelThickness: bev, bevelSize: bev * 0.6, bevelSegments: 4, curveSegments: 24 });
+  const frameGeo = new THREE.ExtrudeGeometry(outer, { depth: D - bev * 2, bevelEnabled: true, bevelThickness: bev, bevelSize: bs, bevelSegments: 4, curveSegments: 24 });
   frameGeo.translate(0, 0, -(D - bev * 2) / 2);
   const frame = new THREE.Mesh(frameGeo, frameMat);
   frame.castShadow = true;
@@ -606,12 +616,13 @@ export function buildPhone(phone, { simple = false } = {}) {
   screen.position.set(0, (bezelBottom - bezelTop) / 2, glassT / 2 + 0.02 * MM);
   front.add(screen);
   // cover glass over the lit screen: adds only reflections (black diffuse, additive)
-  const sheen = new THREE.Mesh(flatRect(W - 1 * MM, H - 1 * MM, r - 0.5 * MM), new THREE.MeshPhysicalMaterial({
+  // only over the lit screen: across the bezels it read as a grey rim
+  const sheen = new THREE.Mesh(flatRect(sw, sh, NOTCHED.has(look.backLayout) ? r - bz[0] * MM : 0.6 * MM), new THREE.MeshPhysicalMaterial({
     color: '#000000', roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 0.35,
     transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
   }));
   sheen.material.userData.keepEnv = true; // faint room reflection only; never washes out the screen
-  sheen.position.z = glassT / 2 + 0.06 * MM;
+  sheen.position.set(0, (bezelBottom - bezelTop) / 2, glassT / 2 + 0.06 * MM);
   sheen.renderOrder = 2;
   front.add(sheen);
   if (!simple) addFrontDetails(front, look, W, H, { sw, sh, bezelTop, bezelBottom, z: glassT / 2 });
@@ -643,7 +654,7 @@ export function buildPhone(phone, { simple = false } = {}) {
     openSide = phone.teardown.openFrom === 'back' ? -1 : 1;
     if (['redmi', 'iphone13', 'iphone11', 'iphone6p', 'iphone7p', 'slvr', 'karbonn', 'motoe'].includes(look.backLayout)) {
       // detailed interior modelled on the iFixit teardown photos
-      const inside = buildDetailedInterior(phone, W, H, D, openSide);
+      const inside = buildDetailedInterior(phone, W, H, D, openSide, r);
       interior = inside.group;
       battery = inside.battery;
       anchors = inside.anchors;
