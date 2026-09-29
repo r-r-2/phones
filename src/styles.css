@@ -113,13 +113,6 @@ button { cursor: pointer; }
 .steps li.done { background: var(--ink); color: #fff; }
 .steps li.now { background: var(--accent-soft); color: var(--accent); }
 
-#hotspots { position: fixed; inset: 0; pointer-events: none; z-index: 4; }
-.hs { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 0; background: rgba(36,89,214,0.22); display: grid; place-items: center; pointer-events: auto; transition: opacity 0.25s, transform 0.25s; }
-.hs::after { content: ''; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px var(--accent); }
-.hs.active { background: rgba(36,89,214,0.4); transform: scale(1.15); }
-.hs.hidden { opacity: 0; pointer-events: none; }
-.hs .tip { position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap; padding: 4px 8px; border-radius: 6px; background: var(--ink); color: #fff; font-family: var(--mono); font-size: 11px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-.hs.active .tip, .hs:hover .tip, .hs:focus-visible .tip { opacity: 1; }
 
 .credits { position: fixed; left: 24px; right: 24px; bottom: 14px; z-index: 5; font-family: var(--mono); font-size: 10px; color: var(--ink-3); display: flex; justify-content: space-between; gap: 16px; pointer-events: none; }
 .credits a { color: inherit; pointer-events: auto; }
@@ -167,7 +160,6 @@ button { cursor: pointer; }
   .steps li { white-space: nowrap; padding: 6px 10px; font-size: 11px; }
   .hint { top: 146px; bottom: auto; max-width: calc(100vw - 32px); text-align: center; }
   .toast { top: 108px; }
-  .hs .tip { display: none; } /* a tap shows the part name as a toast instead */
 
   .credits { left: 12px; right: 12px; bottom: calc(4px + env(safe-area-inset-bottom)); justify-content: center; font-size: 10px; }
   .credits #credit-text { display: none; }

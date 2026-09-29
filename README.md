@@ -22,8 +22,7 @@ npm run preview    # serve dist/ locally
 | Next / previous phone | arrow buttons, ← →, scroll wheel, swipe, or click a phone / a year in the list |
 | Pick up | "Pick it up", or click the phone in front |
 | Turn it around | drag anywhere (360° in every direction, with a little inertia) |
-| Open it up | "Open it up" → cover slides off, dots mark the parts |
-| Parts ↔ specs | hover a dot to highlight its spec row, or hover a spec row to highlight its part |
+| Open it up | "Open it up" → the cover slides off to show the insides |
 | Battery out | "Lift the battery" |
 | Put it back | "Close it up" → "Put it back", or Esc |
 | Whole table | "View from above" after the last phone |
@@ -51,7 +50,7 @@ public/CNAME           custom domain for GitHub Pages
 
 1. Add an entry to `personal` in `src/data/phones.json` (`dimensionsMm`, `specs`, `look`, `teardown`, `details`).
 2. Give it a `look.backLayout` and add that layout to `BEZELS` / `CORNER` / `addFrontDetails` / `buildBackDetails` / `addButtons` in `scene/phone.js`, and to `buildDetailedInterior` in `scene/interior.js`.
-3. Teardown `parts` positions are fractions of the interior as you look at the opened side (`u`, `v` from the bottom-left, `w`, `h`). Parts with a `spec` key get a hotspot linked to that spec row; `underBattery: true` hides the dot until the battery is lifted.
+3. Teardown `parts` positions are fractions of the interior as you look at the opened side (`u`, `v` from the bottom-left, `w`, `h`).
 
 Teardown interiors are modelled in code, using iFixit teardown photos only as a layout reference (the photos are not part of the site).
 
@@ -73,7 +72,6 @@ Events sent:
 | `rotate_phone` | first drag-rotate per phone and view | `phone_id`, `view` (held / open) |
 | `open_teardown` | phone opened | `phone_id`, `phone_name` |
 | `teardown_step` | battery lifted / put back | `phone_id`, `step` |
-| `view_part` | first time a part's dot is used | `phone_id`, `part` |
 | `overhead_view` | "View from above" | |
 | `work_table_view` | first visit to the work table | `source` |
 | `view_work_phone` | a work phone in front | `phone_id`, `phone_name` |

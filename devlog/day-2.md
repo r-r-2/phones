@@ -15,6 +15,7 @@
   - Karbonn A7 rebuilt after the real phone (it's an HTC-Desire-style design): grey glass front with a white chin and a silver pill button, silver side band, white back with the red camera ring, flash beside it, red "Karbonn" wordmark and a two-slot speaker.
   - Thickness check: every frame now measures exactly its listed size (the bevel was adding ~1 mm to width and height). Cameras on phones with near-flush lenses (Redmi, Moto E, SLVR, Karbonn) no longer stick out 1 mm; 7 Plus bump lowered.
   - Work iPhones "edges popping out at the corners": interior parts were square-cornered and poked through the big rounded corners. Every interior part is now trimmed to the frame's rounded opening, and the mid-plate follows the corner radius. Also toned down the glass-edge glare that drew a grey rim round dark phones.
+- 12:10 — Removed the part dots (hotspots) and their labels from the teardown view; Rahul decided the feature wasn't adding much. Opening a phone now just shows the modelled insides; the battery step stays.
 
 ## Screenshots to use
 - devlog/shots/day-2/ (work phones, mobile, intro)

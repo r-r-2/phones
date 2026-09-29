@@ -62,9 +62,7 @@
             "u": 0.38,
             "v": 0.84,
             "w": 0.24,
-            "h": 0.1,
-            "spec": "camera",
-            "label": "Camera · 1.3 MP"
+            "h": 0.1
           },
           {
             "id": "battery",
@@ -72,9 +70,7 @@
             "u": 0.08,
             "v": 0.2,
             "w": 0.84,
-            "h": 0.55,
-            "spec": "battery",
-            "label": "Battery · 880 mAh (BK60)"
+            "h": 0.55
           },
           {
             "id": "storage",
@@ -82,10 +78,7 @@
             "u": 0.2,
             "v": 0.3,
             "w": 0.6,
-            "h": 0.2,
-            "spec": "storage",
-            "label": "Storage · 20 MB + microSD",
-            "underBattery": true
+            "h": 0.2
           }
         ]
       },
@@ -192,9 +185,7 @@
             "u": 0.4,
             "v": 0.86,
             "w": 0.2,
-            "h": 0.09,
-            "spec": "camera",
-            "label": "Camera · 5 MP, dual LED"
+            "h": 0.09
           },
           {
             "id": "battery",
@@ -202,9 +193,7 @@
             "u": 0.07,
             "v": 0.2,
             "w": 0.86,
-            "h": 0.55,
-            "spec": "battery",
-            "label": "Battery · 1,420 mAh"
+            "h": 0.55
           },
           {
             "id": "storage",
@@ -212,10 +201,7 @@
             "u": 0.1,
             "v": 0.3,
             "w": 0.35,
-            "h": 0.2,
-            "spec": "storage",
-            "label": "microSD · 1 GB card",
-            "underBattery": true
+            "h": 0.2
           },
           {
             "id": "sim",
@@ -223,9 +209,7 @@
             "u": 0.1,
             "v": 0.45,
             "w": 0.8,
-            "h": 0.23,
-            "label": "Dual SIM · SIM 1 + SIM 2",
-            "underBattery": true
+            "h": 0.23
           }
         ]
       },
@@ -349,9 +333,7 @@
             "u": 0.41,
             "v": 0.86,
             "w": 0.18,
-            "h": 0.08,
-            "spec": "camera",
-            "label": "Camera · 5 MP"
+            "h": 0.08
           },
           {
             "id": "processor",
@@ -359,9 +341,7 @@
             "u": 0.6,
             "v": 0.8,
             "w": 0.3,
-            "h": 0.12,
-            "spec": "processor",
-            "label": "Processor · Snapdragon 200"
+            "h": 0.12
           },
           {
             "id": "ram",
@@ -369,13 +349,7 @@
             "u": 0.6,
             "v": 0.8,
             "w": 0.3,
-            "h": 0.12,
-            "spec": "ram",
-            "label": "RAM · 1 GB",
-            "hotspotOffset": [
-              0.07,
-              -0.04
-            ]
+            "h": 0.12
           },
           {
             "id": "storage",
@@ -383,9 +357,7 @@
             "u": 0.1,
             "v": 0.69,
             "w": 0.3,
-            "h": 0.09,
-            "spec": "storage",
-            "label": "Storage · 4 GB + microSD"
+            "h": 0.09
           },
           {
             "id": "battery",
@@ -393,9 +365,7 @@
             "u": 0.07,
             "v": 0.08,
             "w": 0.86,
-            "h": 0.55,
-            "spec": "battery",
-            "label": "Battery · 1,980 mAh"
+            "h": 0.55
           }
         ]
       },
@@ -526,9 +496,7 @@
             "u": 0.55,
             "v": 0.74,
             "w": 0.18,
-            "h": 0.1,
-            "spec": "processor",
-            "label": "Processor · Snapdragon 650"
+            "h": 0.1
           },
           {
             "id": "ram",
@@ -536,9 +504,7 @@
             "u": 0.42,
             "v": 0.63,
             "w": 0.14,
-            "h": 0.07,
-            "spec": "ram",
-            "label": "RAM · 2 GB"
+            "h": 0.07
           },
           {
             "id": "storage",
@@ -546,9 +512,7 @@
             "u": 0.08,
             "v": 0.69,
             "w": 0.17,
-            "h": 0.09,
-            "spec": "storage",
-            "label": "Storage · 16 GB"
+            "h": 0.09
           },
           {
             "id": "camera",
@@ -556,9 +520,7 @@
             "u": 0.37,
             "v": 0.85,
             "w": 0.16,
-            "h": 0.08,
-            "spec": "camera",
-            "label": "Camera · 16 MP"
+            "h": 0.08
           },
           {
             "id": "battery",
@@ -566,9 +528,7 @@
             "u": 0.05,
             "v": 0.11,
             "w": 0.85,
-            "h": 0.5,
-            "label": "Battery · 4,050 mAh",
-            "spec": "battery"
+            "h": 0.5
           }
         ]
       },
@@ -699,9 +659,7 @@
             "u": 0.065,
             "v": 0.53,
             "w": 0.23,
-            "h": 0.16,
-            "spec": "processor",
-            "label": "A15 Bionic"
+            "h": 0.16
           },
           {
             "id": "ram",
@@ -709,13 +667,7 @@
             "u": 0.065,
             "v": 0.53,
             "w": 0.23,
-            "h": 0.16,
-            "spec": "ram",
-            "label": "RAM · 4 GB (stacked on A15)",
-            "hotspotOffset": [
-              0.07,
-              -0.035
-            ]
+            "h": 0.16
           },
           {
             "id": "storage",
@@ -723,9 +675,7 @@
             "u": 0.065,
             "v": 0.33,
             "w": 0.23,
-            "h": 0.13,
-            "spec": "storage",
-            "label": "Storage · 256 GB"
+            "h": 0.13
           },
           {
             "id": "camera",
@@ -733,9 +683,7 @@
             "u": 0.25,
             "v": 0.78,
             "w": 0.65,
-            "h": 0.2,
-            "spec": "camera",
-            "label": "Cameras · 12 MP ×2"
+            "h": 0.2
           },
           {
             "id": "battery",
@@ -743,9 +691,7 @@
             "u": 0.32,
             "v": 0.16,
             "w": 0.65,
-            "h": 0.6,
-            "label": "Battery · 2,406 mAh",
-            "spec": "battery"
+            "h": 0.6
           },
           {
             "id": "taptic",
@@ -877,9 +823,7 @@
             "u": 0.72,
             "v": 0.6,
             "w": 0.22,
-            "h": 0.14,
-            "spec": "processor",
-            "label": "Processor · A8"
+            "h": 0.14
           },
           {
             "id": "ram",
@@ -887,13 +831,7 @@
             "u": 0.72,
             "v": 0.6,
             "w": 0.22,
-            "h": 0.14,
-            "spec": "ram",
-            "label": "RAM · 1 GB (stacked on A8)",
-            "hotspotOffset": [
-              0.05,
-              -0.035
-            ]
+            "h": 0.14
           },
           {
             "id": "storage",
@@ -901,9 +839,7 @@
             "u": 0.72,
             "v": 0.42,
             "w": 0.22,
-            "h": 0.1,
-            "spec": "storage",
-            "label": "Storage · 64 GB"
+            "h": 0.1
           },
           {
             "id": "camera",
@@ -911,9 +847,7 @@
             "u": 0.7,
             "v": 0.87,
             "w": 0.24,
-            "h": 0.1,
-            "spec": "camera",
-            "label": "Camera · 8 MP"
+            "h": 0.1
           },
           {
             "id": "battery",
@@ -921,9 +855,7 @@
             "u": 0.06,
             "v": 0.14,
             "w": 0.6,
-            "h": 0.72,
-            "spec": "battery",
-            "label": "Battery · 2,915 mAh"
+            "h": 0.72
           }
         ],
         "photoCredit": {
@@ -1041,9 +973,7 @@
             "u": 0.72,
             "v": 0.6,
             "w": 0.22,
-            "h": 0.14,
-            "spec": "processor",
-            "label": "Processor · A10 Fusion"
+            "h": 0.14
           },
           {
             "id": "ram",
@@ -1051,13 +981,7 @@
             "u": 0.72,
             "v": 0.6,
             "w": 0.22,
-            "h": 0.14,
-            "spec": "ram",
-            "label": "RAM · 3 GB (stacked on A10)",
-            "hotspotOffset": [
-              0.05,
-              -0.035
-            ]
+            "h": 0.14
           },
           {
             "id": "storage",
@@ -1065,9 +989,7 @@
             "u": 0.72,
             "v": 0.42,
             "w": 0.22,
-            "h": 0.1,
-            "spec": "storage",
-            "label": "Storage · 128 GB"
+            "h": 0.1
           },
           {
             "id": "camera",
@@ -1075,9 +997,7 @@
             "u": 0.7,
             "v": 0.87,
             "w": 0.24,
-            "h": 0.1,
-            "spec": "camera",
-            "label": "Camera · 12 MP ×2"
+            "h": 0.1
           },
           {
             "id": "battery",
@@ -1085,9 +1005,7 @@
             "u": 0.06,
             "v": 0.14,
             "w": 0.6,
-            "h": 0.72,
-            "spec": "battery",
-            "label": "Battery · 2,900 mAh"
+            "h": 0.72
           }
         ],
         "photoCredit": {
@@ -1210,9 +1128,7 @@
             "u": 0.065,
             "v": 0.53,
             "w": 0.23,
-            "h": 0.16,
-            "spec": "processor",
-            "label": "A13 Bionic"
+            "h": 0.16
           },
           {
             "id": "ram",
@@ -1220,13 +1136,7 @@
             "u": 0.065,
             "v": 0.53,
             "w": 0.23,
-            "h": 0.16,
-            "spec": "ram",
-            "label": "RAM · 4 GB (stacked on A13)",
-            "hotspotOffset": [
-              0.07,
-              -0.035
-            ]
+            "h": 0.16
           },
           {
             "id": "storage",
@@ -1234,9 +1144,7 @@
             "u": 0.065,
             "v": 0.33,
             "w": 0.23,
-            "h": 0.13,
-            "spec": "storage",
-            "label": "Storage · 128 GB"
+            "h": 0.13
           },
           {
             "id": "camera",
@@ -1244,9 +1152,7 @@
             "u": 0.25,
             "v": 0.78,
             "w": 0.65,
-            "h": 0.2,
-            "spec": "camera",
-            "label": "Cameras · 12 MP ×2"
+            "h": 0.2
           },
           {
             "id": "battery",
@@ -1254,9 +1160,7 @@
             "u": 0.32,
             "v": 0.16,
             "w": 0.65,
-            "h": 0.6,
-            "label": "Battery · 3,110 mAh",
-            "spec": "battery"
+            "h": 0.6
           },
           {
             "id": "taptic",
@@ -1387,9 +1291,7 @@
             "u": 0.065,
             "v": 0.53,
             "w": 0.23,
-            "h": 0.16,
-            "spec": "processor",
-            "label": "A15 Bionic"
+            "h": 0.16
           },
           {
             "id": "ram",
@@ -1397,13 +1299,7 @@
             "u": 0.065,
             "v": 0.53,
             "w": 0.23,
-            "h": 0.16,
-            "spec": "ram",
-            "label": "RAM · 4 GB (stacked on A15)",
-            "hotspotOffset": [
-              0.07,
-              -0.035
-            ]
+            "h": 0.16
           },
           {
             "id": "storage",
@@ -1411,9 +1307,7 @@
             "u": 0.065,
             "v": 0.33,
             "w": 0.23,
-            "h": 0.13,
-            "spec": "storage",
-            "label": "Storage · 256 GB"
+            "h": 0.13
           },
           {
             "id": "camera",
@@ -1421,9 +1315,7 @@
             "u": 0.25,
             "v": 0.78,
             "w": 0.65,
-            "h": 0.2,
-            "spec": "camera",
-            "label": "Cameras · 12 MP ×2"
+            "h": 0.2
           },
           {
             "id": "battery",
@@ -1431,9 +1323,7 @@
             "u": 0.32,
             "v": 0.16,
             "w": 0.65,
-            "h": 0.6,
-            "label": "Battery · 3,227 mAh",
-            "spec": "battery"
+            "h": 0.6
           },
           {
             "id": "taptic",

@@ -7,7 +7,7 @@ Human-facing docs live in `README.md`.
 
 **My Phone Showroom** — a static 3D site (https://phones.rr2.dev) showing every phone the owner has had,
 standing on a round showroom table. Visitors orbit the table, pick a phone up, rotate it 360°, open it
-up (teardown view with hotspots) and compare specs with the previous phone.
+up (teardown view) and compare specs with the previous phone.
 
 Stack: **Vite 8 + Three.js r186 + GSAP**, plain ES modules, no framework, no TypeScript. Node ≥ 20.19 (see `.nvmrc`).
 
@@ -47,7 +47,7 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
   `window.__showroom.THREE` / `items` / `workItems` are exposed so you can measure models (Box3) in a script.
 - Interior rectangles go through `R()`, which trims them to the frame's rounded opening — keep using it so nothing pokes through big iPhone corners.
 - Teardown parts: `u`, `v`, `w`, `h` are fractions of the interior seen from the opened side, `u`/`v` from the bottom-left.
-  `spec` links a hotspot to a spec row; `underBattery: true` shows the dot only after the battery is lifted.
+  They only position modelled parts; the part-dots/hotspot feature was removed on purpose — don't bring it back unasked.
 - Interiors are modelled in code. iFixit photos may be used as a *layout reference* only; don't ship them in `public/`
   (keep references in the git-ignored `reference/` folder).
 - Canvas textures are drawn procedurally. Don't copy real product artwork; printed labels use our own wording.
@@ -67,8 +67,7 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 - Analytics stays cookieless (no banner, `client_storage: 'none'`).
 - An empty stand after the newest phone is intentional (for the next phone).
 - Footer shows "Built by Rahul · rr2.dev". A short how-to-navigate note appears on first load and leaves by itself.
-- Mobile (≤ 900 px): phone list is one scrollable strip (with a "Work phones" chip), specs are a collapsible bottom sheet,
-  part names show as a toast when a dot is tapped.
+- Mobile (≤ 900 px): phone list is one scrollable strip (with a "Work phones" chip), specs are a collapsible bottom sheet.
 
 ## Adding a phone
 

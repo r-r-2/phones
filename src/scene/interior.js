@@ -165,7 +165,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
   const g = new THREE.Group(); // viewer space
   if (side < 0) g.rotation.y = Math.PI;
   root.add(g);
-  const anchors = new Map();
 
   // everything inside has to stay within the frame's rounded opening, or square corners poke through it
   const inA = W / 2 - 1.5 * MM, inB = H / 2 - 1.5 * MM, inR = Math.max(cornerR - 1.5 * MM, 0.5 * MM);
@@ -304,16 +303,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     }
     if (!square) h.scale.set(1, 0.8, 1);
   };
-  const anchor = (id, x, y, z, parent = g) => {
-    const part = (phone.teardown.parts ?? []).find((q) => q.id === id);
-    if (!part || (!part.spec && !part.label)) return;
-    const a = new THREE.Object3D();
-    const [ox, oy] = part.hotspotOffset ?? [0, 0];
-    a.position.set(x + ox * IW, y + oy * IH, z + 0.4 * MM);
-    a.userData = { part };
-    parent.add(a);
-    anchors.set(id, a);
-  };
   const partRect = (id) => {
     const p = (phone.teardown.parts ?? []).find((q) => q.id === id);
     return p ? R(p.u, p.v, p.u + p.w, p.v + p.h) : null;
@@ -351,7 +340,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
       g.add(s);
     }
     battery = b;
-    anchor('battery', 0, 0, t / 2, b);
     return b;
   };
 
@@ -407,10 +395,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     screw(0.07, 0.05, Z0 + 2.2 * MM); screw(0.93, 0.05, Z0 + 2.2 * MM);
     box(R(0.8, 0.035, 0.86, 0.07), 0.3 * MM, M.gold, Z0 + 2.2 * MM, 0.1 * MM); // spring contacts
 
-    anchor('processor', soc.r.x, soc.r.y, soc.top);
-    const pr = partRect('ram'); if (pr) anchor('ram', pr.x, pr.y, Z0 + 1.4 * MM);
-    const sr = partRect('storage'); if (sr) anchor('storage', sr.x, sr.y, Z0 + 1.4 * MM);
-    const cr = partRect('camera'); if (cr) anchor('camera', cr.x, cr.y, Z0 + 2.6 * MM);
   } else if (layout === 'iphone13' || layout === 'iphone11') {
     // --- iPhone 13 mini / 13 / 11, display off (viewed from the front) ---
     const [chipName, chipLine = ''] = (phone.specs?.processor?.chip ?? 'A15 Bionic').split(' ');
@@ -494,10 +478,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     flex([[0.38, 0.1, 1.0], [0.5, 0.14, 1.0], [0.64, 0.12, 1.0]], 2.5, M.flexBlack);
     screw(0.7, 0.13, Z0 + 2.1 * MM, true); screw(0.94, 0.13, Z0 + 2.1 * MM, true);
 
-    anchor('processor', a15.x, a15.y, board.top + 0.7 * MM);
-    anchor('ram', a15.x, a15.y, board.top + 0.7 * MM);
-    const sr = partRect('storage'); if (sr) anchor('storage', sr.x, sr.y, board.top + 0.5 * MM);
-    anchor('camera', camBracket.r.x, camBracket.r.y, camBracket.top);
 
   } else if (layout === 'iphone6p' || layout === 'iphone7p') {
     // --- iPhone 6 Plus / 7 Plus, display off (viewed from the front) ---
@@ -558,10 +538,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     flex([[0.34, 0.06, 1.2], [0.5, 0.11, 1.2], [0.7, 0.14, 1.4]], 2.5, M.flexOrange);
     screw(0.7, 0.11, Z0 + 2.0 * MM, true); screw(0.94, 0.11, Z0 + 2.0 * MM, true);
 
-    anchor('processor', soc.r.x, soc.r.y, soc.top);
-    anchor('ram', soc.r.x, soc.r.y, soc.top);
-    const sr = partRect('storage'); if (sr) anchor('storage', sr.x, sr.y, Z0 + 1.7 * MM);
-    const cr = partRect('camera'); if (cr) anchor('camera', cr.x, cr.y, Z0 + 2.5 * MM);
     void bracket;
   }
 
@@ -639,8 +615,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     screw(0.12, 0.08, Z0 + 2.2 * MM); screw(0.88, 0.08, Z0 + 2.2 * MM);
     const br = partRect('battery') ?? R(0.08, 0.2, 0.92, 0.75);
     makeBattery(br, batteryLabel({ code: 'BK60', lines: ['Li-ion · 3.7 V', '880 mAh'], bg: '#2A2C30', band: '#8E9298' }), (b, t) => motoMark(b, t, br.w * 0.28, br.h * 0.3, 5 * MM));
-    const cr = partRect('camera'); if (cr) anchor('camera', cr.x, cr.y, Z0 + 2.6 * MM);
-    anchor('storage', sd.x, sd.y, Z0 + 0.6 * MM);
     void sim;
   } else if (layout === 'karbonn') {
     // --- Karbonn A7, back cover off ---
@@ -658,9 +632,6 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     screw(0.1, 0.06, Z0 + 2.4 * MM); screw(0.9, 0.06, Z0 + 2.4 * MM);
     const br = partRect('battery') ?? R(0.07, 0.2, 0.93, 0.75);
     makeBattery(br, batteryLabel({ code: 'Li-ion', lines: ['Rechargeable battery · 3.7 V', '1420 mAh'], logo: 'KARBONN', bg: '#EDEBE6', ink: '#2A2A2C', band: '#1F5FA8' }));
-    const cr = partRect('camera'); if (cr) anchor('camera', cr.x, cr.y, Z0 + 2.8 * MM);
-    anchor('storage', sd.x, sd.y, Z0 + 0.6 * MM);
-    const sr = R(0.1, 0.45, 0.9, 0.68); anchor('sim', sr.x, sr.y, Z0 + 0.7 * MM);
   } else if (layout === 'motoe') {
     // --- Moto E (1st gen), back shell off: inner housing over the board, battery below ---
     const top = R(0.03, 0.66, 0.97, 0.985);
@@ -680,11 +651,7 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     const br = partRect('battery') ?? R(0.07, 0.08, 0.93, 0.63);
     makeBattery(br, batteryLabel({ code: 'Li-ion', lines: ['3.8 V · 1980 mAh · 7.5 Wh', 'Non-removable'] }), (b, t) => motoMark(b, t, br.w * 0.28, br.h * 0.3, 6 * MM));
     box(R(0.03, 0.012, 0.97, 0.06), Math.min(room, 1.8 * MM), M.plastic, Z0, 0.4 * MM);
-    const cr = partRect('camera'); if (cr) anchor('camera', cr.x, cr.y, housingTop + 0.5 * MM);
-    anchor('processor', can.r.x, can.r.y, can.top);
-    anchor('ram', can.r.x, can.r.y, can.top);
-    anchor('storage', sdBox.x, sdBox.y, housingTop + 0.6 * MM);
   }
 
-  return { group: root, anchors, battery };
+  return { group: root, battery };
 }

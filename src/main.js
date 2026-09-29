@@ -165,7 +165,6 @@ const specsEl = $('#specs');
 const controlsEl = $('#controls');
 const hintEl = $('#hint');
 const stepsEl = $('#steps');
-const hotspotsEl = $('#hotspots');
 
 const ICON = {
   left: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 2L4 6l4 4"/></svg>',
@@ -238,7 +237,6 @@ function renderSpecs() {
     } else if (state.table === 'work') {
       specsEl.innerHTML = phoneSpecsHtml(workItems[state.workCur].phone, data.work, 'Company phone');
       animateBars();
-      bindSpecHover();
     } else if (enabled[state.cur].placeholder) {
       specsEl.innerHTML = `
         <div class="eyebrow">Empty stand</div>
@@ -247,7 +245,6 @@ function renderSpecs() {
     } else {
       specsEl.innerHTML = phoneSpecsHtml(enabled[state.cur].phone, personal);
       animateBars();
-      bindSpecHover();
     }
     specsEl.classList.remove('swap');
   }, reduceMotion ? 0 : 180);
@@ -315,7 +312,7 @@ function renderControls() {
     html += btn('Close it up', 'data-act="close"');
     if (canLiftBattery()) html += state.step === 1 ? btn('Lift the battery', 'data-act="battery"', 'primary') : btn('Put the battery back', 'data-act="battery"', 'primary');
     html += btn('', 'data-act="reset" aria-label="Face me again"', 'icon', ICON.reset);
-    hint('Drag to turn it · tap a dot to see the part');
+    hint('Drag to turn it around');
   } else if (m === 'overhead') {
     html += btn('Back to the table', 'data-act="down"', 'primary');
     html += btn('Work table', 'data-act="work"', '', ICON.right, true);
@@ -456,7 +453,7 @@ function openUp() {
       // always slide the cover to the viewer's right; the battery lifts out to the left
       x: c.userData.home.x + model.openSide * W * 1.12, z: c.userData.home.z + model.openSide * 0.02,
       duration: D(1.0), ease: 'power2.inOut',
-      onComplete: () => { state.mode = 'open'; state.step = 1; interiorShadows(model, true); renderControls(); buildHotspots(); },
+      onComplete: () => { state.mode = 'open'; state.step = 1; interiorShadows(model, true); renderControls(); },
     });
     gsap.to(c.rotation, { y: model.openSide * 0.35, duration: D(1.0), ease: 'power2.inOut' });
   });
@@ -494,7 +491,6 @@ function closeUp(done) {
   if (state.mode !== 'open') return;
   const { model } = state.held;
   state.mode = 'moving';
-  clearHotspots();
   interiorShadows(model, false);
   model.setBatteryOut?.(false);
   const b = model.battery;
@@ -516,67 +512,6 @@ function resetOrientation() {
   const prev = state.mode;
   state.mode = 'moving';
   tweenPose(state.held.model.root, pos, q, D(0.6), () => { state.mode = prev; });
-}
-
-// ---------- hotspots ----------
-let hotspots = [];
-function buildHotspots() {
-  clearHotspots();
-  const { model } = state.held;
-  for (const [id, anchor] of model.anchors) {
-    const part = anchor.userData.part;
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'hs';
-    b.dataset.spec = part.spec ?? '';
-    b.setAttribute('aria-label', part.label ?? id);
-    b.innerHTML = `<span class="tip">${part.label ?? id}</span>`;
-    const on = () => highlight(part.spec, b, part);
-    b.addEventListener('mouseenter', on);
-    b.addEventListener('focus', on);
-    b.addEventListener('click', on);
-    b.addEventListener('mouseleave', () => highlight(null));
-    b.addEventListener('blur', () => highlight(null));
-    hotspotsEl.appendChild(b);
-    hotspots.push({ el: b, anchor });
-  }
-}
-function clearHotspots() { hotspotsEl.innerHTML = ''; hotspots = []; }
-
-const isNarrow = () => matchMedia('(max-width: 900px)').matches;
-
-function highlight(spec, el = null, part = null) {
-  specsEl.querySelectorAll('.spec-row').forEach((r) => r.classList.toggle('hl', !!spec && r.dataset.spec === spec));
-  hotspots.forEach((h) => h.el.classList.toggle('active', !!el ? h.el === el : (!!spec && h.el.dataset.spec === spec)));
-  if (part && el && isNarrow()) toast(part.label ?? part.id, 2500);
-  if (part && state.held) trackOnce(`hs:${state.held.item.phone.id}:${part.id}`, 'view_part', { phone_id: state.held.item.phone.id, part: part.id });
-}
-
-function bindSpecHover() {
-  specsEl.querySelectorAll('.spec-row').forEach((r) => {
-    r.addEventListener('mouseenter', () => state.mode === 'open' && highlight(r.dataset.spec));
-    r.addEventListener('mouseleave', () => state.mode === 'open' && highlight(null));
-  });
-}
-
-const normal = new THREE.Vector3();
-function updateHotspots() {
-  if (!hotspots.length || !state.held) return;
-  const { model } = state.held;
-  normal.set(0, 0, model.openSide).applyQuaternion(model.root.quaternion);
-  const toCam = camera.position.clone().sub(model.root.position).normalize();
-  const facing = normal.dot(toCam) > 0.55 && !drag.active && state.mode === 'open';
-  const w = innerWidth, h = innerHeight;
-  for (const hs of hotspots) {
-    hs.anchor.getWorldPosition(tmpV);
-    tmpV.project(camera);
-    hs.el.style.left = `${(tmpV.x * 0.5 + 0.5) * w}px`;
-    hs.el.style.top = `${(-tmpV.y * 0.5 + 0.5) * h}px`;
-    // the battery hotspot leaves with the battery
-    const part = hs.anchor.userData.part;
-    const gone = (part.kind === 'battery' && state.step === 2) || (part.underBattery && state.step !== 2);
-    hs.el.classList.toggle('hidden', !facing || gone);
-  }
 }
 
 // ---------- pointer: drag to rotate, click to select ----------
@@ -793,7 +728,6 @@ function frame() {
     drag.vx *= f; drag.vy *= f;
   }
   renderer.render(scene, camera);
-  updateHotspots();
   requestAnimationFrame(frame);
 }
 

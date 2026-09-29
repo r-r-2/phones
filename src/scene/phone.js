@@ -433,77 +433,6 @@ function buildBackDetails(phone, W, H, backMat) {
   return g;
 }
 
-function buildInterior(phone, W, H, D, side) {
-  const g = new THREE.Group();
-  const anchors = new Map();
-  let battery = null;
-  const plate = new THREE.Mesh(slab(W - 2 * MM, H - 2 * MM, 5 * MM, 0.6 * MM), mats.plate);
-  plate.receiveShadow = true;
-  g.add(plate);
-  const IW = W - 5 * MM, IH = H - 6 * MM;
-  const room = D / 2 - 1.4 * MM; // free depth on the open side
-  for (const p of phone.teardown?.parts ?? []) {
-    const cx = (p.u + p.w / 2 - 0.5) * IW * side; // mirrored when viewed from the back
-    const cy = (p.v + p.h / 2 - 0.5) * IH;
-    const w = p.w * IW, h = p.h * IH;
-    let mesh, top, thick = 0;
-    if (p.kind === 'board') {
-      const t = 0.9 * MM;
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), mats.board);
-      mesh.position.set(cx, cy, side * (0.3 * MM + t / 2)); top = 0.3 * MM + t;
-    } else if (p.kind === 'chip') {
-      const t = 0.8 * MM;
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), mats.chip);
-      mesh.position.set(cx, cy, side * (1.2 * MM + t / 2)); top = 1.2 * MM + t;
-    } else if (p.kind === 'battery') {
-      const t = Math.min(room, 3.2 * MM);
-      thick = t;
-      mesh = new THREE.Mesh(slab(w, h, 2.5 * MM, t, 0.4 * MM), mats.battery);
-      mesh.position.set(cx, cy, side * (0.3 * MM + t / 2)); top = 0.3 * MM + t;
-      const tab = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.3, h * 0.08), new THREE.MeshStandardMaterial({ color: '#111', roughness: 0.8 }));
-      tab.position.set(0, -h * 0.4, side * (t / 2 + 0.05 * MM));
-      if (side < 0) tab.rotation.y = Math.PI;
-      mesh.add(tab);
-      battery = mesh;
-    } else if (p.kind === 'camera') {
-      mesh = new THREE.Group();
-      const t = Math.min(room, 3 * MM);
-      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), mats.module);
-      mesh.add(body);
-      const n = phone.look?.backLayout === 'iphone13' ? 2 : 1;
-      const r = Math.min(w / (n + 0.6), h) * 0.42;
-      for (let i = 0; i < n; i++) {
-        const l = lens(r, 0.6 * MM);
-        const off = n === 1 ? 0 : (i === 0 ? -1 : 1) * r * 1.05;
-        l.position.set(off * side, n === 1 ? 0 : -off, side * (t / 2));
-        mesh.add(l);
-      }
-      mesh.position.set(cx, cy, side * (0.3 * MM + t / 2)); top = 0.3 * MM + t;
-    } else {
-      const t = 1.6 * MM;
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), mats.module);
-      mesh.position.set(cx, cy, side * (0.3 * MM + t / 2)); top = 0.3 * MM + t;
-    }
-    mesh.traverse?.((o) => { o.castShadow = true; o.receiveShadow = true; });
-    g.add(mesh);
-    if (p.spec || p.label) {
-      const a = new THREE.Object3D();
-      const [ox, oy] = p.hotspotOffset ?? [0, 0];
-      a.userData = { part: p };
-      if (p.kind === 'battery') {
-        // rides along with the battery when it is lifted out
-        a.position.set(ox * IW * side, oy * IH, side * (thick / 2 + 0.4 * MM));
-        mesh.add(a);
-      } else {
-        a.position.set(cx + ox * IW * side, cy + oy * IH, side * (top + 0.4 * MM));
-        g.add(a);
-      }
-      anchors.set(p.id, a);
-    }
-  }
-  return { group: g, anchors, battery };
-}
-
 let brushedTex = null;
 function brushedTexture() {
   if (brushedTex) return brushedTex;
@@ -555,7 +484,7 @@ function addButtons(root, layout, W, H, D, mat) {
 }
 
 /**
- * Build a phone. Returns { root, cover, battery, anchors, openSide, dims }.
+ * Build a phone. Returns { root, cover, battery, openSide, dims }.
  * `root` is centred on the phone's middle.
  */
 export function buildPhone(phone, { simple = false } = {}) {
@@ -647,23 +576,14 @@ export function buildPhone(phone, { simple = false } = {}) {
 
   let interior = null;
   let battery = null;
-  let anchors = new Map();
   let openSide = 1;
   let setBatteryOut = null;
   if (phone.teardown && !simple) {
     openSide = phone.teardown.openFrom === 'back' ? -1 : 1;
-    if (['redmi', 'iphone13', 'iphone11', 'iphone6p', 'iphone7p', 'slvr', 'karbonn', 'motoe'].includes(look.backLayout)) {
-      // detailed interior modelled on the iFixit teardown photos
-      const inside = buildDetailedInterior(phone, W, H, D, openSide, r);
-      interior = inside.group;
-      battery = inside.battery;
-      anchors = inside.anchors;
-    } else {
-      const inside = buildInterior(phone, W, H, D, openSide);
-      interior = inside.group;
-      battery = inside.battery;
-      anchors = inside.anchors;
-    }
+    // detailed interior laid out after iFixit teardowns (one branch per backLayout)
+    const inside = buildDetailedInterior(phone, W, H, D, openSide, r);
+    interior = inside.group;
+    battery = inside.battery;
     root.add(interior);
   }
 
@@ -677,7 +597,6 @@ export function buildPhone(phone, { simple = false } = {}) {
     back,
     interior,
     battery,
-    anchors,
     openSide,
     setBatteryOut,
     dims: { W, H, D },
