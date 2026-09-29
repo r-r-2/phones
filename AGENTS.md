@@ -76,6 +76,17 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 3. Stands and slots are laid out automatically (`SLOTS = personal.length + 1`).
 4. Build, screenshot browse / held (front + back) / open / battery-out views, fix, commit.
 
+## Commits & PRs
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) for every commit message and PR title:
+`type(scope): summary` in the imperative mood, lower-case summary, no trailing period.
+
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
+- Scope is optional but preferred — the area touched, e.g. `phone`, `interior`, `showroom`, `specs`, `analytics`, `deploy`.
+- Breaking change: add `!` after the type/scope (`feat(main)!: …`) and explain in the body.
+
+Examples: `feat(phone): add Pixel 8 exterior`, `fix(analytics): use real GA4 id`, `chore: remove redundant root CNAME`.
+
 ## Deploy
 
 Push to `main` → GitHub Actions builds and publishes `dist/` to Pages at `phones.rr2.dev`.
