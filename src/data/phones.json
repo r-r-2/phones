@@ -127,8 +127,8 @@
         "version": "2.3 Gingerbread"
       },
       "color": {
-        "name": "Ivory White",
-        "hex": "#EDE6D6"
+        "name": "White",
+        "hex": "#F1F1EF"
       },
       "owned": {
         "from": "2012-07",
@@ -137,7 +137,7 @@
         "range": "Jul 2012 – 2014"
       },
       "dimensionsMm": {
-        "w": 61,
+        "w": 60,
         "h": 115,
         "d": 12
       },
@@ -164,10 +164,10 @@
         "Custom ROMs"
       ],
       "look": {
-        "front": "#3F4247",
-        "frame": "#BFC2C6",
-        "frameRoughness": 0.25,
-        "back": "#F4F1EA",
+        "front": "#060607",
+        "frame": "#B9BBBF",
+        "frameRoughness": 0.38,
+        "back": "#F1F1EF",
         "backMetalness": 0,
         "backRoughness": 0.32,
         "wallpaper": [

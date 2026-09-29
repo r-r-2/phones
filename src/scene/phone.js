@@ -7,6 +7,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { LOGO_PATHS } from '../logos.js';
 import { buildDetailedInterior } from './interior.js';
 import { SLVR_OUTLINE, SLVR_SIDE, SLVR_BEZELS, slvrFront, slvrBack } from './slvr.js';
+import { KARBONN_BEZELS, karbonnBody, karbonnFront, karbonnBack } from './karbonn.js';
 
 export const MM = 0.001;
 
@@ -177,7 +178,7 @@ const BEZELS = {
   iphone7p: [4.7, 18, 18],
   redmi: [3.8, 16, 12],
   slvr: SLVR_BEZELS, // traced from the product photo (see slvr.js)
-  karbonn: [5.8, 18, 23],
+  karbonn: KARBONN_BEZELS, // traced (see karbonn.js)
   motoe: [5.65, 14.5, 15.1],
 };
 const CORNER = { iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.2, karbonn: 0.16, motoe: 0.17 };
@@ -186,6 +187,8 @@ const NOTCHED = new Set(['iphone13', 'iphone11']);
 // designs with a traced outline / rounded-pill sides instead of a rounded rectangle
 const OUTLINES = { slvr: SLVR_OUTLINE };
 const SIDES = { slvr: SLVR_SIDE };
+// designs whose whole body is modelled in their own module (frame, front glass, back cover)
+const BODIES = { karbonn: karbonnBody };
 
 function canvasTexture(wpx, hpx, draw) {
   const c = document.createElement('canvas');
@@ -279,27 +282,7 @@ function addFrontDetails(front, look, W, H, { sw, sh, bezelTop, bezelBottom, z }
   } else if (layout === 'slvr') {
     slvrFront(front, W, H, z);
   } else if (layout === 'karbonn') {
-    // HTC-Desire-style front: grey glass around the screen, a white chin with a silver pill button
-    const white = new THREE.MeshPhysicalMaterial({ color: look.back ?? "#F4F1EA", roughness: 0.32 });
-    white.userData.envScale = 0.6;
-    const chinH = bezelBottom - 2 * MM;
-    const chin = new THREE.Mesh(slab(W - 0.8 * MM, chinH, Math.min(W, H) * 0.14, 0.8 * MM, 0.3 * MM), white);
-    chin.position.set(0, -H / 2 + 0.4 * MM + chinH / 2, z);
-    const silver = new THREE.MeshStandardMaterial({ color: '#C9CCD0', metalness: 1, roughness: 0.22 });
-    const pill = new THREE.Mesh(new RoundedBoxGeometry(10 * MM, 4.6 * MM, 1.0 * MM, 3, 1.2 * MM), silver);
-    pill.position.set(0, chin.position.y + 0.5 * MM, z + 0.5 * MM);
-    const keys = canvasTexture(400, 60, (g, Wc, Hc) => {
-      g.strokeStyle = '#9A968D'; g.lineWidth = 5; g.lineCap = 'round';
-      g.beginPath(); for (let k = -1; k <= 1; k++) { g.moveTo(30, Hc / 2 + k * 10); g.lineTo(62, Hc / 2 + k * 10); } g.stroke();
-      g.beginPath(); g.arc(Wc - 46, Hc / 2 + 2, 13, -Math.PI * 0.5, Math.PI * 0.6); g.moveTo(Wc - 46, Hc / 2 - 11); g.lineTo(Wc - 62, Hc / 2 - 11); g.lineTo(Wc - 54, Hc / 2 - 19); g.stroke();
-    });
-    const kp = decalPlane(W * 0.72, W * 0.72 * 0.15, keys);
-    kp.position.set(0, pill.position.y, z + 0.42 * MM);
-    const ear = new THREE.Mesh(new RoundedBoxGeometry(W * 0.2, 1.4 * MM, 0.3 * MM, 2, 0.15 * MM), silver);
-    ear.position.set(0, H / 2 - bezelTop * 0.45, z + 0.05 * MM);
-    const cam = new THREE.Mesh(new THREE.CircleGeometry(0.9 * MM, 24), dark);
-    cam.position.set(W * 0.2, H / 2 - bezelTop * 0.45, zt);
-    front.add(chin, pill, kp, ear, cam);
+    karbonnFront(front, W, H, z);
   } else if (layout === 'motoe') {
     // chrome earpiece and loudspeaker grilles above and below the screen
     for (const [y, wf] of [[H / 2 - bezelTop * 0.5, 0.36], [-H / 2 + bezelBottom * 0.5, 0.36]]) {
@@ -393,20 +376,7 @@ function buildBackDetails(phone, W, H, backMat) {
   } else if (layout === 'slvr') {
     slvrBack(g, W, H, backMat);
   } else if (layout === 'karbonn') {
-    // camera with its signature red ring, flash beside it, red wordmark and a small two-slot speaker
-    const r = 0.075 * W, cy = H / 2 - 0.14 * H;
-    const red = new THREE.MeshPhysicalMaterial({ color: '#C8202E', roughness: 0.25, clearcoat: 0.6 });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.3, 0.8 * MM, 16, 48), red);
-    ring.scale.z = 0.5; // a flat red bezel, not a donut
-    ring.position.set(0, cy, -0.15 * MM);
-    const cam = lens(r, 0.6 * MM); cam.position.set(0, cy, -0.2 * MM);
-    const fl = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.42, r * 0.42, 0.3 * MM, 20), mats.flash);
-    fl.rotation.x = Math.PI / 2; fl.position.set(-r * 2.9, cy, -0.15 * MM);
-    const wm = textPlane('Karbonn', W * 0.34, 3.2 * MM, { color: '#C8202E', weight: 700 });
-    wm.rotation.y = Math.PI; wm.position.set(0, -0.2 * H, -0.03 * MM);
-    const grille = holesPlane(W * 0.14, 2.2 * MM, { rows: 2, cols: 1, round: false }); grille.rotation.y = Math.PI;
-    grille.position.set(0, -0.28 * H, -0.03 * MM);
-    g.add(ring, cam, fl, wm, grille);
+    karbonnBack(g, W, H);
   } else if (layout === 'motoe') {
     const r = 0.07 * W;
     const cam = lens(r, 0.6 * MM); cam.position.set(0, H / 2 - 0.13 * H, -0.2 * MM);
@@ -462,9 +432,6 @@ function addButtons(root, layout, W, H, D, mat) {
     btn(11 * MM, L, H / 2 - 22.5 * MM); // volume
     btn(9 * MM, R, H / 2 - 18.5 * MM); // voice key
     btn(11 * MM, R, H / 2 - 72.5 * MM); // smart key
-  } else if (layout === 'karbonn') {
-    btn(14 * MM, L, H / 2 - 30 * MM); // volume
-    btn(8 * MM, R, H / 2 - 22 * MM); // power
   } else if (layout === 'motoe') {
     btn(9 * MM, R, H / 2 - 22 * MM); // power
     btn(18 * MM, R, H / 2 - 40 * MM); // volume
@@ -515,8 +482,11 @@ export function buildPhone(phone, { simple = false } = {}) {
   // front/back plates sit inside the rounded edge when the sides are pill-shaped
   const plateInset = side ? 2 * bs + 0.3 * MM : 0.4 * MM;
   outer.holes.push(new THREE.Path(inner.getPoints(24)));
+  const body = simple ? null : BODIES[look.backLayout]?.(W, H, D, { frameMat }) ?? null;
   let frame;
-  if (side) {
+  if (body) {
+    frame = body.frame;
+  } else if (side) {
     // two shells (front and back housing) that meet in a fine groove round the middle,
     // like the real candybar: it reads as two thin halves rather than one thick block
     frame = new THREE.Group();
@@ -537,10 +507,10 @@ export function buildPhone(phone, { simple = false } = {}) {
   }
   root.add(frame);
 
-  const glassT = 0.8 * MM;
+  const glassT = body?.frontT ?? 0.8 * MM;
   // Front: glass + lit screen
   const front = new THREE.Group();
-  const frontGlass = new THREE.Mesh(slab(W - plateInset, H - plateInset, r - 0.2 * MM, glassT, 0.25 * MM, outline), frontMat);
+  const frontGlass = body?.frontPlate ?? new THREE.Mesh(slab(W - plateInset, H - plateInset, r - 0.2 * MM, glassT, 0.25 * MM, outline), frontMat);
   frontGlass.castShadow = true;
   front.add(frontGlass);
   const bz = BEZELS[look.backLayout] ?? BEZELS.default;
@@ -568,18 +538,17 @@ export function buildPhone(phone, { simple = false } = {}) {
 
   // Back cover
   const back = new THREE.Group();
-  const backPlate = new THREE.Mesh(slab(W - plateInset, H - plateInset, r - 0.2 * MM, glassT, 0.25 * MM, outline), backMat);
-  backPlate.castShadow = true;
-  back.add(backPlate);
+  // a modelled body brings its own cover, placed in body coordinates
+  back.add(body?.cover ?? new THREE.Mesh(slab(W - plateInset, H - plateInset, r - 0.2 * MM, glassT, 0.25 * MM, outline), backMat));
   if (!simple) {
     const det = buildBackDetails(phone, W, H, backMat);
-    det.position.z = -glassT / 2;
+    det.position.z = body ? -D / 2 : -glassT / 2;
     back.add(det);
   } else {
     // a simple camera dot so work phones read as phones from behind
     const l = lens(W * 0.07, 0.8 * MM); l.position.set(W * 0.3, H * 0.4, -glassT / 2 - 0.3 * MM); back.add(l);
   }
-  back.position.z = -D / 2 + glassT / 2;
+  back.position.z = body ? 0 : -D / 2 + glassT / 2;
   root.add(back);
 
   let interior = null;
@@ -589,7 +558,7 @@ export function buildPhone(phone, { simple = false } = {}) {
   if (phone.teardown && !simple) {
     openSide = phone.teardown.openFrom === 'back' ? -1 : 1;
     // detailed interior laid out after iFixit teardowns (one branch per backLayout)
-    const inside = buildDetailedInterior(phone, W, H, D, openSide, outline ? 12 * MM : r);
+    const inside = buildDetailedInterior(phone, W, H, D, openSide, outline || body ? 12 * MM : r);
     interior = inside.group;
     battery = inside.battery;
     root.add(interior);
