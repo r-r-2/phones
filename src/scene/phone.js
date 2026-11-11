@@ -8,6 +8,7 @@ import { LOGO_PATHS } from '../logos.js';
 import { buildDetailedInterior } from './interior.js';
 import { SLVR_OUTLINE, SLVR_SIDE, SLVR_BEZELS, slvrFront, slvrBack } from './slvr.js';
 import { KARBONN_BEZELS, karbonnBody, karbonnFront, karbonnBack } from './karbonn.js';
+import { MOTOE_BEZELS, motoeBody, motoeFront } from './motoe.js';
 import { attachModel } from './modelPhone.js';
 import { iphone17proMaterials } from './iphone17pro.js';
 
@@ -189,7 +190,7 @@ const BEZELS = {
   redmi: [3.8, 16, 12],
   slvr: SLVR_BEZELS, // traced from the product photo (see slvr.js)
   karbonn: KARBONN_BEZELS, // traced (see karbonn.js)
-  motoe: [5.65, 14.5, 15.1],
+  motoe: MOTOE_BEZELS, // traced (see motoe.js)
 };
 const CORNER = { iphone17pro: 0.165, iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.2, karbonn: 0.16, motoe: 0.17 };
 // full-screen designs: notch in the lock screen and a screen that follows the body's corners
@@ -198,7 +199,7 @@ const NOTCHED = new Set(['iphone13', 'iphone11']);
 const OUTLINES = { slvr: SLVR_OUTLINE };
 const SIDES = { slvr: SLVR_SIDE };
 // designs whose whole body is modelled in their own module (frame, front glass, back cover)
-const BODIES = { karbonn: karbonnBody };
+const BODIES = { karbonn: karbonnBody, motoe: motoeBody };
 
 function canvasTexture(wpx, hpx, draw) {
   const c = document.createElement('canvas');
@@ -294,14 +295,7 @@ function addFrontDetails(front, look, W, H, { sw, sh, bezelTop, bezelBottom, z }
   } else if (layout === 'karbonn') {
     karbonnFront(front, W, H, z);
   } else if (layout === 'motoe') {
-    // chrome earpiece and loudspeaker grilles above and below the screen
-    for (const [y, wf] of [[H / 2 - bezelTop * 0.5, 0.36], [-H / 2 + bezelBottom * 0.5, 0.36]]) {
-      const bar = new THREE.Mesh(new RoundedBoxGeometry(W * wf, 2.2 * MM, 0.3 * MM, 2, 0.14 * MM), chrome);
-      bar.position.set(0, y, z + 0.1 * MM);
-      const holes = holesPlane(W * wf - 1.2 * MM, 1.2 * MM, { rows: 2, cols: 24 });
-      holes.position.set(0, y, z + 0.27 * MM);
-      front.add(bar, holes);
-    }
+    motoeFront(front, W, H, z);
   }
 }
 
@@ -388,14 +382,7 @@ function buildBackDetails(phone, W, H, backMat) {
   } else if (layout === 'karbonn') {
     karbonnBack(g, W, H);
   } else if (layout === 'motoe') {
-    const r = 0.07 * W;
-    const cam = lens(r, 0.6 * MM); cam.position.set(0, H / 2 - 0.13 * H, -0.2 * MM);
-    // the dimple with the Motorola batwing below the camera
-    const dimple = new THREE.Mesh(new THREE.CircleGeometry(r * 1.6, 40), new THREE.MeshStandardMaterial({ color: '#141416', roughness: 0.45, metalness: 0.2 }));
-    dimple.rotation.y = Math.PI; dimple.position.set(0, H / 2 - 0.25 * H, -0.02 * MM);
-    const logo = logoMesh('motorola', r * 2.2, new THREE.MeshStandardMaterial({ color: '#5A5C61', metalness: 0.8, roughness: 0.35 }));
-    logo.position.set(0, H / 2 - 0.25 * H, -0.06 * MM);
-    g.add(cam, dimple, logo);
+    // camera, dimple and mark are part of the domed cover (motoe.js)
   }
   return g;
 }
@@ -442,9 +429,6 @@ function addButtons(root, layout, W, H, D, mat) {
     btn(11 * MM, L, H / 2 - 22.5 * MM); // volume
     btn(9 * MM, R, H / 2 - 18.5 * MM); // voice key
     btn(11 * MM, R, H / 2 - 72.5 * MM); // smart key
-  } else if (layout === 'motoe') {
-    btn(9 * MM, R, H / 2 - 22 * MM); // power
-    btn(18 * MM, R, H / 2 - 40 * MM); // volume
   }
 }
 
@@ -591,6 +575,7 @@ export function buildPhone(phone, { simple = false } = {}) {
     const inside = buildDetailedInterior(phone, W, H, D, openSide, outline || body ? 12 * MM : r);
     interior = inside.group;
     battery = inside.battery;
+    if (body?.interiorZ) interior.position.z = body.interiorZ;
     root.add(interior);
   }
 

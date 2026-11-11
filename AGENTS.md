@@ -34,6 +34,7 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 | `src/scene/phone.js` | Procedural phone exteriors. Per-design tables: `BEZELS`, `CORNER`; functions `addFrontDetails`, `buildBackDetails`, `addButtons`. Exports shared helpers (`MM`, `slab`, `lens`, `logoMesh`, `mats`). |
 | `src/scene/slvr.js` | SLVR L7e exterior traced from its product photos (outline, front/back faces, chrome parts). |
 | `src/scene/karbonn.js` | Karbonn A7 body traced from its product photos: its own cross-section (glass, band, pebble back cover), faces and parts. Hooked in through `BODIES` in `phone.js`. |
+| `src/scene/motoe.js` | Moto E body traced from its product photos: flat glass on a black band, a domed soft-touch cover (radial height-map mesh with the Motorola dimple cut in), chrome grilles. Hooked in through `BODIES`. |
 | `src/scene/iphone17pro.js` | Painted finish (Deep Blue aluminium, Simple Icons mark, our lock screen) drawn onto the 17 Pro model's UV layout. |
 | `src/scene/modelPhone.js` | Loads a prepared `.glb` exterior (`look.model`) into a phone: `body` node → frame, `display` node → the lifting front. Used by the iPhone 17 Pro. |
 | `public/models/` | Prepared `.glb` files. `scripts/prepare-*.mjs` makes them from the downloaded model (kept in `reference/`). |
@@ -51,10 +52,11 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 - Phones are built from real dimensions (`dimensionsMm`) so relative sizes are true — don't scale them for looks.
   `window.__showroom.THREE` / `items` / `workItems` are exposed so you can measure models (Box3) in a script.
 - Interior rectangles go through `R()`, which trims them to the frame's rounded opening — keep using it so nothing pokes through big iPhone corners.
+  A body with a thin-edged cover (Moto E) returns `interiorZ` so the insides sit up behind the seam instead of poking through.
 - Teardown parts: `u`, `v`, `w`, `h` are fractions of the interior seen from the opened side, `u`/`v` from the bottom-left.
   They only position modelled parts; the part-dots/hotspot feature was removed on purpose — don't bring it back unasked.
 - Exteriors are modelled in code but traced from real product photos: measure features in mm on a front/back photo
-  scaled to the phone's real size and place them 1:1 (see `src/scene/slvr.js` and `src/scene/karbonn.js` for the pattern; references live in the
+  scaled to the phone's real size and place them 1:1 (see `src/scene/slvr.js`, `src/scene/karbonn.js` and `src/scene/motoe.js` for the pattern; references live in the
   git-ignored `reference/` folder). CC-BY models and manufacturer photos are fine as references.
 - Interiors are modelled in code. iFixit photos may be used as a *layout reference* only; don't ship them in `public/`
   (keep references in the git-ignored `reference/` folder).
