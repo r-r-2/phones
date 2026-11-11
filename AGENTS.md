@@ -73,6 +73,8 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 - Personal phones are the focus; work phones sit on a separate small table, labelled only as company/work phones
   (they can be picked up and opened too). **Never name the employer.**
 - Specs are neutral numbers — no marketing prose or headlines. Unknown values show "not published".
+- The main table is a ring: next/previous wrap round, the site opens on the oldest phone, and "From above" is a
+  toggle in the top-left corner (not a button at the end of the list).
 - Year sits on the left of the phone list. No boot-screen sequence, no dotted "company era" line, no blog link.
 - Full 360° rotation when held and in the teardown view (drag only).
 - Arrow keys while holding a phone: first press shows a toast, second press (same direction, within 3 s) puts it back and moves on.
