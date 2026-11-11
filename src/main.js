@@ -83,7 +83,7 @@ const personal = data.personal;
 // `next: null` in phones.json means no empty stand for now
 const hasNext = data.next !== null;
 const SLOTS = personal.length + (hasNext ? 1 : 0); // one extra, empty stand for the next phone
-const SLOT = (i) => (i - (personal.length - 1)) * (360 / SLOTS) * DEG; // newest phone faces the start view
+const SLOT = (i) => i * (360 / SLOTS) * DEG; // oldest phone faces the start view; newer phones wrap round
 const items = personal.map((p, i) => {
   const stand = makeStand(p.dimensionsMm.h / 1000);
   placeOnTable(stand, new THREE.Vector3(), TABLE.height, TABLE.standRadius, SLOT(i));
@@ -135,7 +135,7 @@ const RIGS = {
   work: { cx: WORK_TABLE.center.x, cz: WORK_TABLE.center.z, rc: 1.1, camH: 1.12, tr: 0.18, th: 0.99 },
 };
 const OVERHEAD = { pos: new THREE.Vector3(0, 2.4, 1.8), target: new THREE.Vector3(0, TABLE.height, 0.05) };
-const view = { ...RIGS.main, angle: enabled[newest].angle, over: 0 };
+const view = { ...RIGS.main, angle: enabled[0].angle, over: 0 }; // start facing the oldest phone
 
 function updateCamera() {
   const { cx, cz, rc, camH, tr, th, angle, over } = view;
@@ -159,7 +159,7 @@ function shortest(from, to) {
 const state = {
   mode: 'browse', // browse | moving | held | open | overhead | work
   table: 'main',
-  cur: newest, // index into `enabled` (start on the newest phone)
+  cur: 0, // index into `enabled` (start on the oldest phone)
   workCur: 1,
   step: 0, // teardown step: 1 cover off, 2 battery out
   held: null, // { item, model }
@@ -176,6 +176,7 @@ const dirWork = $('#dir-work');
 const specsEl = $('#specs');
 const controlsEl = $('#controls');
 const hintEl = $('#hint');
+const overheadBtn = $('#overhead-btn');
 const stepsEl = $('#steps');
 
 const ICON = {
@@ -299,17 +300,21 @@ function btn(label, attrs = '', cls = '', icon = '', iconAfter = false) {
 function renderControls() {
   const m = state.mode;
   let html = '';
+  // the top-corner "From above" toggle: available while browsing the main table, pressed while up there
+  overheadBtn.hidden = !(state.table === 'main' && (m === 'browse' || m === 'overhead' || m === 'moving'));
+  overheadBtn.setAttribute('aria-pressed', String(m === 'overhead'));
   if (m === 'browse' && state.table === 'main' && enabled[state.cur].placeholder) {
-    const prev = enabled[state.cur - 1];
+    const prev = enabled[(state.cur - 1 + enabled.length) % enabled.length];
+    const next = enabled[(state.cur + 1) % enabled.length];
     html += btn(prev.phone.name, 'data-act="prev" aria-label="Previous phone"', 'nav', ICON.left);
-    html += btn('View from above', 'data-act="overhead"', 'primary', ICON.right, true);
+    html += btn(next.phone.name, 'data-act="next" aria-label="Next phone"', 'nav', ICON.right, true);
     hint('');
   } else if (m === 'browse' && state.table === 'main') {
-    const prev = enabled[state.cur - 1];
-    const next = enabled[state.cur + 1];
-    html += prev ? btn(prev.phone.name, 'data-act="prev" aria-label="Previous phone"', 'nav', ICON.left) : '';
+    const prev = enabled[(state.cur - 1 + enabled.length) % enabled.length];
+    const next = enabled[(state.cur + 1) % enabled.length];
+    html += btn(prev.phone.name, 'data-act="prev" aria-label="Previous phone"', 'nav', ICON.left);
     html += btn('Pick it up', 'data-act="pick"', 'primary', ICON.up, true);
-    html += next ? btn(next.phone.name, 'data-act="next" aria-label="Next phone"', 'nav', ICON.right, true) : btn('View from above', 'data-act="overhead"', '', ICON.right, true);
+    html += btn(next.phone.name, 'data-act="next" aria-label="Next phone"', 'nav', ICON.right, true);
     hint('');
   } else if (m === 'browse' && state.table === 'work') {
     html += btn('', 'data-act="wprev" aria-label="Previous work phone"', 'icon', ICON.left);
@@ -360,7 +365,7 @@ function refreshUI({ specs = true } = {}) {
 function goTo(idx, source = 'nav') {
   if (state.mode === 'moving') return;
   if (state.mode === 'held' || state.mode === 'open') return;
-  idx = Math.max(0, Math.min(enabled.length - 1, idx));
+  idx = ((idx % enabled.length) + enabled.length) % enabled.length; // the table is a ring: wrap both ways
   const fromWork = state.table === 'work' || view.over > 0.01;
   if (idx === state.cur && !fromWork) return;
   state.cur = idx;
@@ -389,12 +394,14 @@ function goWork(k = state.workCur, source = 'nav') {
 function goOverhead() {
   if (state.mode !== 'browse') return;
   state.mode = 'moving';
+  renderControls();
   gsap.to(view, { ...RIGS.main, over: 1, duration: D(2.0), ease: 'power2.inOut', onComplete: () => { state.mode = 'overhead'; refreshUI(); } });
   track('overhead_view');
 }
 
 function leaveOverhead() {
   state.mode = 'moving';
+  renderControls();
   gsap.to(view, { over: 0, duration: D(1.6), ease: 'power2.inOut', onComplete: () => { state.mode = 'browse'; refreshUI(); } });
 }
 
@@ -618,8 +625,7 @@ addEventListener('wheel', (e) => {
   if (Math.abs(wheelAcc) > 60) {
     const dir = Math.sign(wheelAcc);
     wheelAcc = 0; wheelLock = now + 1200;
-    if (dir > 0 && state.cur === enabled.length - 1) goOverhead();
-    else goTo(state.cur + dir, 'scroll');
+    goTo(state.cur + dir, 'scroll');
   }
 }, { passive: true });
 
@@ -650,7 +656,6 @@ let armed = null; // { dir, until }
 
 function step(dir, source) {
   if (state.table === 'work') return goWork(state.workCur + dir, source);
-  if (dir > 0 && state.cur === enabled.length - 1) return goOverhead();
   goTo(state.cur + dir, source);
 }
 
@@ -678,12 +683,16 @@ addEventListener('keydown', (e) => {
       armed = { dir, until: now + 3000 };
       const target = state.table === 'work'
         ? workItems[(state.workCur + dir + workItems.length) % workItems.length].phone.name
-        : dir > 0 ? enabled[state.cur + 1]?.phone.name ?? 'the view from above' : enabled[state.cur - 1]?.phone.name;
-      if (!target) { toast('This is the first phone on the table.'); armed = null; return; }
+        : enabled[(state.cur + dir + enabled.length) % enabled.length].phone.name;
       toast(`Press ${dir > 0 ? '→' : '←'} again to put this phone back and go to ${target}`);
     }
   }
   else if (e.key === 'Escape') { if (m === 'open') closeUp(); else if (m === 'held') putBack(); else if (m === 'overhead') leaveOverhead(); }
+});
+
+overheadBtn.addEventListener('click', () => {
+  if (state.mode === 'overhead') leaveOverhead();
+  else if (state.mode === 'browse' && state.table === 'main') goOverhead();
 });
 
 // control buttons
