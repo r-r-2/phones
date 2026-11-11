@@ -10,8 +10,10 @@ const S = 2048;
 const DEEP_BLUE = '#313949';
 
 const BACK = { x0: 50, x1: 838, y0: 219, y1: 1846, r: 120 };
-const PLATEAU_TOP = 728; // the camera plateau runs from the top edge down to here
-const PLATEAU = { x0: 70, x1: 820, y0: 248, y1: 688, r: 92 }; // its raised top face
+// the camera plateau's raised top face and the foot of its step, read off the model's own vertices
+// (top face: 62 x 40 mm, 4 mm below the top edge; the step wall maps to rows 680-717)
+const PLATEAU = { x0: 102, x1: 779, y0: 272, y1: 699, r: 70 };
+const PLATEAU_TOP = 717;
 const FRONT = { x0: 867, x1: 1656, y0: 218, y1: 1844, r: 118 };
 const SCREEN = { x0: 904, x1: 1620, y0: 250, y1: 1812, r: 92 };
 const ISLAND = { x0: 1156, x1: 1372, y0: 278, y1: 338 };
@@ -51,7 +53,7 @@ function drawBack(g) {
   aluminium(g, BACK, 7);
   // glass panel below the plateau (for MagSafe): a touch darker and smoother
   g.save();
-  rr(g, { x0: BACK.x0 + 22, x1: BACK.x1 - 22, y0: PLATEAU_TOP + 26, y1: BACK.y1 - 22, r: 100 });
+  rr(g, { x0: BACK.x0 + 22, x1: BACK.x1 - 22, y0: PLATEAU_TOP + 40, y1: BACK.y1 - 22, r: 100 });
   g.clip();
   const gl = g.createLinearGradient(BACK.x0, 0, BACK.x1, 0);
   gl.addColorStop(0, '#2b3243'); gl.addColorStop(0.5, '#31394b'); gl.addColorStop(1, '#2b3243');
@@ -59,10 +61,7 @@ function drawBack(g) {
   g.restore();
   // plateau step: a thin shadow line and a highlight just above it
   // plateau: same aluminium, with a light chamfer round its top face and a soft shadow at its foot
-  g.fillStyle = 'rgba(10,14,24,0.28)'; g.fillRect(BACK.x0, PLATEAU_TOP - 2, BACK.x1 - BACK.x0, 4);
-  rr(g, PLATEAU); g.lineWidth = 10; g.strokeStyle = 'rgba(190,205,235,0.22)'; g.stroke();
-  rr(g, { x0: PLATEAU.x0 + 8, x1: PLATEAU.x1 - 8, y0: PLATEAU.y0 + 8, y1: PLATEAU.y1 - 8, r: PLATEAU.r - 8 });
-  g.lineWidth = 4; g.strokeStyle = 'rgba(15,20,32,0.3)'; g.stroke();
+  rr(g, PLATEAU); g.lineWidth = 6; g.strokeStyle = 'rgba(190,205,235,0.16)'; g.stroke();
 
   // flash, LiDAR and microphone on the plateau
   dot(g, 684, 364, 36); g.fillStyle = '#e9e4d2'; g.fill();
@@ -136,7 +135,7 @@ export function iphone17proMaterials(screenCanvas) {
   // roughness (green channel): glass smooth, aluminium satin
   const rough = new THREE.CanvasTexture(canvas((g) => {
     g.fillStyle = 'rgb(0,190,0)'; g.fillRect(0, 0, S, S);
-    rr(g, { x0: BACK.x0 + 22, x1: BACK.x1 - 22, y0: PLATEAU_TOP + 26, y1: BACK.y1 - 22, r: 100 });
+    rr(g, { x0: BACK.x0 + 22, x1: BACK.x1 - 22, y0: PLATEAU_TOP + 40, y1: BACK.y1 - 22, r: 100 });
     g.fillStyle = 'rgb(0,165,0)'; g.fill();
     rr(g, FRONT); g.fillStyle = 'rgb(0,30,0)'; g.fill();
   }));
