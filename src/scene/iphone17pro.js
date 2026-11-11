@@ -11,6 +11,7 @@ const DEEP_BLUE = '#313949';
 
 const BACK = { x0: 50, x1: 838, y0: 219, y1: 1846, r: 120 };
 const PLATEAU_TOP = 728; // the camera plateau runs from the top edge down to here
+const PLATEAU = { x0: 70, x1: 820, y0: 248, y1: 688, r: 92 }; // its raised top face
 const FRONT = { x0: 867, x1: 1656, y0: 218, y1: 1844, r: 118 };
 const SCREEN = { x0: 904, x1: 1620, y0: 250, y1: 1812, r: 92 };
 const ISLAND = { x0: 1156, x1: 1372, y0: 278, y1: 338 };
@@ -38,7 +39,7 @@ function dot(g, x, y, r) {
 /** Anodised aluminium: fine grain plus a soft top-to-bottom falloff. */
 function aluminium(g, box, seed = 1) {
   const grad = g.createLinearGradient(0, box.y0, 0, box.y1);
-  grad.addColorStop(0, '#2e3547'); grad.addColorStop(1, '#353d51');
+  grad.addColorStop(0, '#333b4f'); grad.addColorStop(1, '#353d51'); // one aluminium tone end to end
   g.fillStyle = grad; g.fillRect(box.x0, box.y0, box.x1 - box.x0, box.y1 - box.y0);
   let s = seed;
   const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
@@ -57,8 +58,11 @@ function drawBack(g) {
   g.fillStyle = gl; g.fillRect(BACK.x0, PLATEAU_TOP, BACK.x1 - BACK.x0, BACK.y1 - PLATEAU_TOP);
   g.restore();
   // plateau step: a thin shadow line and a highlight just above it
-  g.fillStyle = 'rgba(10,14,24,0.55)'; g.fillRect(BACK.x0, PLATEAU_TOP - 4, BACK.x1 - BACK.x0, 6);
-  g.fillStyle = 'rgba(255,255,255,0.08)'; g.fillRect(BACK.x0, PLATEAU_TOP + 2, BACK.x1 - BACK.x0, 3);
+  // plateau: same aluminium, with a light chamfer round its top face and a soft shadow at its foot
+  g.fillStyle = 'rgba(10,14,24,0.28)'; g.fillRect(BACK.x0, PLATEAU_TOP - 2, BACK.x1 - BACK.x0, 4);
+  rr(g, PLATEAU); g.lineWidth = 10; g.strokeStyle = 'rgba(190,205,235,0.22)'; g.stroke();
+  rr(g, { x0: PLATEAU.x0 + 8, x1: PLATEAU.x1 - 8, y0: PLATEAU.y0 + 8, y1: PLATEAU.y1 - 8, r: PLATEAU.r - 8 });
+  g.lineWidth = 4; g.strokeStyle = 'rgba(15,20,32,0.3)'; g.stroke();
 
   // flash, LiDAR and microphone on the plateau
   dot(g, 684, 364, 36); g.fillStyle = '#e9e4d2'; g.fill();
@@ -69,9 +73,9 @@ function drawBack(g) {
 
   // Apple mark (Simple Icons), slightly glossier than the glass around it
   const path = new Path2D(LOGO_PATHS.apple);
-  const h = 158, scale = h / 24;
+  const h = 214, scale = h / 24; // measured on the model: 181 × 214 px, about 16 × 20 mm
   g.save();
-  g.translate(448 - 12 * scale, 1276 - 12 * scale);
+  g.translate(448 - 12 * scale, 1251 - 12 * scale);
   g.scale(scale, scale);
   g.fillStyle = '#242a38';
   g.fill(path);
@@ -155,5 +159,22 @@ export function iphone17proMaterials(screenCanvas) {
     map: colour, emissive: '#ffffff', emissiveMap: glow, emissiveIntensity: 0.85, roughness: 0.18, metalness: 0,
   });
   display.userData.envScale = 0.15; // keeps the black island black under the room's reflections
-  return { body, display };
+
+  // camera glass: the model's transmission glass sat almost on top of the lens rings and z-fought with them
+  // (mottled rings); a thin clear sheen drawn after the rings reads the same without the flicker
+  const cover = new THREE.MeshPhysicalMaterial({
+    color: '#ffffff', roughness: 0.05, metalness: 0, transparent: true, opacity: 0.12, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  });
+  // lens elements: deep glossy glass with a faint coating tint instead of a see-through dark hole
+  const lens = new THREE.MeshPhysicalMaterial({
+    color: '#0a0c16', roughness: 0.06, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.02,
+    iridescence: 0.6, iridescenceIOR: 1.6, iridescenceThicknessRange: [250, 420],
+  });
+  lens.userData.envScale = 1.4;
+  // lens rings: an even, satin anodised finish; the model's own dark mirror metal picked up blotchy reflections
+  // polygon offset: the ring's top sits on the same plane as the black barrel inside it, and they z-fought
+  const ring = new THREE.MeshPhysicalMaterial({ color: '#2f3749', metalness: 0.9, roughness: 0.45, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -4 });
+  ring.userData.envScale = 0.45;
+  return { body, display, Glass: cover, Lense: lens, ring };
 }

@@ -14,8 +14,8 @@ import { iphone17proMaterials } from './iphone17pro.js';
 // painted finishes for model-based phones, keyed by look.backLayout
 const SKINS = {
   iphone17pro: (phone) => {
-    const { body, display } = iphone17proMaterials(lockScreenTexture(phone, 1562 / 716, false).image);
-    return { 'iphone17pro-textures': body, display };
+    const { body, display, Glass, Lense, ring } = iphone17proMaterials(lockScreenTexture(phone, 1562 / 716, false).image);
+    return { 'iphone17pro-textures': body, display, Glass, Lense, 'Frame ': ring, smooth: ['Frame '] };
   },
 };
 

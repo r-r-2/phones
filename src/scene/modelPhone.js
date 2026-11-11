@@ -27,8 +27,14 @@ export async function attachModel(url, { frame, front }, skin = null) {
     o.traverse((m) => {
       if (!m.isMesh) return;
       m.castShadow = true;
+      // parts whose exported normals are lumpy get smooth ones recomputed
+      if (skin?.smooth?.includes(m.material.name)) {
+        m.geometry = m.geometry.clone();
+        m.geometry.computeVertexNormals();
+      }
       // our own painted finish replaces the model's textured shell
       m.material = skin?.[m.material.name] ?? m.material.clone();
+      if (m.material.transparent) m.renderOrder = 1; // glass over the lens rings draws after them
     });
   }
   // the display face is a single sheet: give its underside a dark backing so it reads as glass when lifted
