@@ -793,7 +793,11 @@
           "url": "https://sketchfab.com/3d-models/iphone-17-pro-167a66e5613d4566921cfc29b3fc9198",
           "license": "CC BY 4.0",
           "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
-        }
+        },
+        "wallpaper": [
+          "#3B5B8F",
+          "#0B1424"
+        ]
       },
       "specs": {
         "processor": {

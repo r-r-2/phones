@@ -34,6 +34,7 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 | `src/scene/phone.js` | Procedural phone exteriors. Per-design tables: `BEZELS`, `CORNER`; functions `addFrontDetails`, `buildBackDetails`, `addButtons`. Exports shared helpers (`MM`, `slab`, `lens`, `logoMesh`, `mats`). |
 | `src/scene/slvr.js` | SLVR L7e exterior traced from its product photos (outline, front/back faces, chrome parts). |
 | `src/scene/karbonn.js` | Karbonn A7 body traced from its product photos: its own cross-section (glass, band, pebble back cover), faces and parts. Hooked in through `BODIES` in `phone.js`. |
+| `src/scene/iphone17pro.js` | Painted finish (Deep Blue aluminium, Simple Icons mark, our lock screen) drawn onto the 17 Pro model's UV layout. |
 | `src/scene/modelPhone.js` | Loads a prepared `.glb` exterior (`look.model`) into a phone: `body` node → frame, `display` node → the lifting front. Used by the iPhone 17 Pro. |
 | `public/models/` | Prepared `.glb` files. `scripts/prepare-*.mjs` makes them from the downloaded model (kept in `reference/`). |
 | `src/scene/interior.js` | Procedural teardown interiors, one branch per `look.backLayout`, built in "viewer space". |
@@ -58,7 +59,9 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 - Interiors are modelled in code. iFixit photos may be used as a *layout reference* only; don't ship them in `public/`
   (keep references in the git-ignored `reference/` folder).
 - Canvas textures are drawn procedurally. Don't copy real product artwork; printed labels use our own wording.
-  Exception (owner's call): the iPhone 17 Pro uses a CC BY 4.0 Sketchfab model exactly as downloaded, texture included.
+  The iPhone 17 Pro's shape comes from a CC BY 4.0 Sketchfab model, but its photo texture is stripped
+  (`scripts/prepare-iphone17pro.mjs`); `src/scene/iphone17pro.js` paints our own finish onto the model's UVs.
+  Never ship a model's photo texture — the owner doesn't want photos pasted onto phones.
   Credit for such models lives in `look.modelCredit` and shows in the page footer — keep it.
 - Brand marks come only from Simple Icons (`simple-icons` package).
 - Colour accuracy: phone glass/plastic uses the neutral `metalEnv` (see `neutralMetals` in `main.js`) so the wooden room

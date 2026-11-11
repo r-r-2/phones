@@ -9,6 +9,15 @@ import { buildDetailedInterior } from './interior.js';
 import { SLVR_OUTLINE, SLVR_SIDE, SLVR_BEZELS, slvrFront, slvrBack } from './slvr.js';
 import { KARBONN_BEZELS, karbonnBody, karbonnFront, karbonnBack } from './karbonn.js';
 import { attachModel } from './modelPhone.js';
+import { iphone17proMaterials } from './iphone17pro.js';
+
+// painted finishes for model-based phones, keyed by look.backLayout
+const SKINS = {
+  iphone17pro: (phone) => {
+    const { body, display } = iphone17proMaterials(lockScreenTexture(phone, 1562 / 716, false).image);
+    return { 'iphone17pro-textures': body, display };
+  },
+};
 
 export const MM = 0.001;
 
@@ -92,7 +101,7 @@ function flatRect(w, h, r) {
   return g;
 }
 
-function lockScreenTexture(phone, aspect, notch) {
+export function lockScreenTexture(phone, aspect, notch) {
   const W = 1024, H = Math.round(1024 * aspect);
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
@@ -450,7 +459,7 @@ function buildModelPhone(phone, W, H, D) {
   root.name = phone.id;
   const frame = new THREE.Group(), front = new THREE.Group(), back = new THREE.Group();
   root.add(frame, front, back);
-  const ready = attachModel(`${import.meta.env.BASE_URL}${look.model}`, { frame, front });
+  const ready = attachModel(`${import.meta.env.BASE_URL}${look.model}`, { frame, front }, SKINS[look.backLayout]?.(phone));
   let interior = null, battery = null, openSide = 1;
   if (phone.teardown) {
     openSide = phone.teardown.openFrom === 'back' ? -1 : 1;

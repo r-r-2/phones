@@ -3,12 +3,11 @@
 // and split the display face off so it can lift away in the teardown view.
 //
 // Run (deps are not in package.json on purpose; install them in a scratch folder):
-//   npm i @gltf-transform/core @gltf-transform/extensions @gltf-transform/functions sharp
+//   npm i @gltf-transform/core @gltf-transform/extensions @gltf-transform/functions
 //   node prepare-iphone17pro.mjs reference/iphone17pro/source/iphone17pro.glb public/models/iphone17pro.glb
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { prune, dedup } from '@gltf-transform/functions';
-import sharp from 'sharp';
 const [src, out] = process.argv.slice(2);
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
 const doc = await io.read(src);
@@ -56,10 +55,10 @@ const dispMesh = doc.createMesh('display').addPrimitive(dispPrim);
 n1.addChild(doc.createNode('display').setMesh(dispMesh));
 console.log('display tris', front.length / 3, 'body shell tris', rest.length / 3);
 
-// the texture has no alpha: render opaque, and ship it as JPEG
-for (const mat of root.listMaterials()) if (mat.getName() === 'iphone17pro-textures') mat.setAlphaMode('OPAQUE');
-for (const tex of root.listTextures()) {
-  tex.setImage(await sharp(tex.getImage()).jpeg({ quality: 90, mozjpeg: true }).toBuffer()).setMimeType('image/jpeg').setURI('iphone17pro.jpg');
+// drop the model's photo texture: the showroom paints its own finish onto these UVs (src/scene/iphone17pro.js)
+for (const mat of root.listMaterials()) {
+  if (mat.getName() !== 'iphone17pro-textures') continue;
+  mat.setBaseColorTexture(null).setBaseColorFactor([0.23, 0.29, 0.41, 1]).setAlphaMode('OPAQUE');
 }
-await doc.transform(dedup(), prune());
+await doc.transform(dedup(), prune({ keepAttributes: true })); // keep UVs: the painted finish uses them
 await io.write(out, doc);

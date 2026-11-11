@@ -17,7 +17,7 @@ function load(url) {
  * Fill `frame` and `front` with the model's body and display. Resolves once they are in place.
  * Each phone gets its own clone so materials can be adjusted per scene without touching the cache.
  */
-export async function attachModel(url, { frame, front }) {
+export async function attachModel(url, { frame, front }, skin = null) {
   const gltf = await load(url);
   const src = gltf.scene.clone(true);
   const body = src.getObjectByName('body');
@@ -27,13 +27,15 @@ export async function attachModel(url, { frame, front }) {
     o.traverse((m) => {
       if (!m.isMesh) return;
       m.castShadow = true;
-      m.material = m.material.clone();
+      // our own painted finish replaces the model's textured shell
+      m.material = skin?.[m.material.name] ?? m.material.clone();
     });
   }
   // the display face is a single sheet: give its underside a dark backing so it reads as glass when lifted
   const sheets = [];
   display.traverse((m) => { if (m.isMesh) sheets.push(m); });
   for (const m of sheets) {
+    if (skin?.display) m.material = skin.display;
     m.material.side = THREE.FrontSide;
     const under = new THREE.Mesh(m.geometry, new THREE.MeshStandardMaterial({ color: '#0d0e10', roughness: 0.6, side: THREE.BackSide }));
     under.position.z = -0.05 * 0.001;
