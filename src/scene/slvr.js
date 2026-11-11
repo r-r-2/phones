@@ -224,7 +224,8 @@ export function slvrFront(front, W, H, z, bezels) {
   const face = new THREE.Mesh(
     // the face sits inside the rounded side edges; UVs span the full body so photo mm map 1:1
     flatShape(archedShape(W - 2.2 * MM, H - 2.2 * MM, SLVR_OUTLINE), W, H),
-    new THREE.MeshPhysicalMaterial({ map: frontTexture(wmm, hmm), roughness: 0.28, clearcoat: 0.5, clearcoatRoughness: 0.12, metalness: 0.15 }),
+    // satin, not glossy: the room's key light was sheeting across the keypad on the stand and washing the navy out
+    new THREE.MeshPhysicalMaterial({ map: frontTexture(wmm, hmm), roughness: 0.45, clearcoat: 0.12, clearcoatRoughness: 0.35, metalness: 0.1, specularIntensity: 0.5 }),
   );
   face.material.userData.envScale = 0.5;
   face.position.z = z + 0.01 * MM;
