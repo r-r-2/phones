@@ -80,7 +80,9 @@ scene.add(camera);
 
 // ---------- phones on stands ----------
 const personal = data.personal;
-const SLOTS = personal.length + 1; // one extra, empty stand for the next phone
+// `next: null` in phones.json means no empty stand for now
+const hasNext = data.next !== null;
+const SLOTS = personal.length + (hasNext ? 1 : 0); // one extra, empty stand for the next phone
 const SLOT = (i) => (i - (personal.length - 1)) * (360 / SLOTS) * DEG; // newest phone faces the start view
 const items = personal.map((p, i) => {
   const stand = makeStand(p.dimensionsMm.h / 1000);
@@ -91,15 +93,16 @@ const items = personal.map((p, i) => {
   if (p.enabled) {
     model = buildPhone(p);
     neutralMetals(model.root, true);
-  interiorShadows(model, false);
     interiorShadows(model, false);
+    // a phone loaded from a .glb gets its materials once the file arrives
+    model.ready?.then(() => neutralMetals(model.root, true));
     model.root.userData.item = i;
     stand.userData.mount.add(model.root);
   }
   return { phone: p, stand, model, angle: SLOT(i), table: 'main' };
 });
 // the empty stand, waiting for whatever comes after the newest phone
-{
+if (hasNext) {
   const nx = data.next ?? { id: 'next', name: 'Next phone', label: 'Next', standHeightMm: 150 };
   const i = personal.length;
   const stand = makeStand(nx.standHeightMm / 1000);
@@ -228,9 +231,11 @@ function renderCredit() {
   const el = document.getElementById('credit-text');
   const p = currentItem()?.phone;
   const c = p?.teardown?.photoCredit;
-  el.innerHTML = c
-    ? `Interior modelled on iFixit's <a href="${c.url}" target="_blank" rel="noopener">${c.title}</a>`
-    : '';
+  const m = p?.look?.modelCredit; // CC BY: title, author, source and licence
+  el.innerHTML = [
+    c && `Interior modelled on iFixit's <a href="${c.url}" target="_blank" rel="noopener">${c.title}</a>`,
+    m && `3D model: <a href="${m.url}" target="_blank" rel="noopener">${m.title}</a> by ${m.author}, <a href="${m.licenseUrl}" target="_blank" rel="noopener">${m.license}</a>`,
+  ].filter(Boolean).join(' · ');
 }
 
 function renderSpecs() {
@@ -242,7 +247,7 @@ function renderSpecs() {
       specsEl.innerHTML = `
         <div class="eyebrow">From above</div>
         <h2 class="spec-name">The whole table</h2>
-        <p class="spec-note">${personal.length} phones at true relative size, plus an empty stand for the next one.</p>`;
+        <p class="spec-note">${personal.length} phones at true relative size${hasNext ? ', plus an empty stand for the next one' : ''}.</p>`;
     } else if (state.table === 'work') {
       specsEl.innerHTML = phoneSpecsHtml(workItems[state.workCur].phone, data.work, 'Company phone');
       animateBars();

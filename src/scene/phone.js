@@ -8,6 +8,7 @@ import { LOGO_PATHS } from '../logos.js';
 import { buildDetailedInterior } from './interior.js';
 import { SLVR_OUTLINE, SLVR_SIDE, SLVR_BEZELS, slvrFront, slvrBack } from './slvr.js';
 import { KARBONN_BEZELS, karbonnBody, karbonnFront, karbonnBack } from './karbonn.js';
+import { attachModel } from './modelPhone.js';
 
 export const MM = 0.001;
 
@@ -181,7 +182,7 @@ const BEZELS = {
   karbonn: KARBONN_BEZELS, // traced (see karbonn.js)
   motoe: [5.65, 14.5, 15.1],
 };
-const CORNER = { iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.2, karbonn: 0.16, motoe: 0.17 };
+const CORNER = { iphone17pro: 0.165, iphone13: 0.17, iphone11: 0.18, iphone6p: 0.13, iphone7p: 0.13, redmi: 0.12, slvr: 0.2, karbonn: 0.16, motoe: 0.17 };
 // full-screen designs: notch in the lock screen and a screen that follows the body's corners
 const NOTCHED = new Set(['iphone13', 'iphone11']);
 // designs with a traced outline / rounded-pill sides instead of a rounded rectangle
@@ -442,10 +443,30 @@ function addButtons(root, layout, W, H, D, mat) {
  * Build a phone. Returns { root, cover, battery, openSide, dims }.
  * `root` is centred on the phone's middle.
  */
+/** A phone whose exterior is a prepared .glb (look.model); the inside is still built in code. */
+function buildModelPhone(phone, W, H, D) {
+  const look = phone.look;
+  const root = new THREE.Group();
+  root.name = phone.id;
+  const frame = new THREE.Group(), front = new THREE.Group(), back = new THREE.Group();
+  root.add(frame, front, back);
+  const ready = attachModel(`${import.meta.env.BASE_URL}${look.model}`, { frame, front });
+  let interior = null, battery = null, openSide = 1;
+  if (phone.teardown) {
+    openSide = phone.teardown.openFrom === 'back' ? -1 : 1;
+    const inside = buildDetailedInterior(phone, W, H, D, openSide, Math.min(W, H) * (CORNER[look.backLayout] ?? 0.12));
+    interior = inside.group;
+    battery = inside.battery;
+    root.add(interior);
+  }
+  return { root, cover: openSide === 1 ? front : back, front, back, interior, battery, openSide, setBatteryOut: null, dims: { W, H, D }, ready };
+}
+
 export function buildPhone(phone, { simple = false } = {}) {
   const { w, h, d } = phone.dimensionsMm;
   const W = w * MM, H = h * MM, D = d * MM;
   const look = phone.look ?? {};
+  if (look.model && !simple) return buildModelPhone(phone, W, H, D);
   const r = Math.min(W, H) * (simple ? 0.14 : (CORNER[look.backLayout] ?? 0.12));
   const root = new THREE.Group();
   root.name = phone.id;

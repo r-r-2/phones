@@ -753,6 +753,162 @@
         "name": "iFixit",
         "url": "https://www.ifixit.com/Device/iPhone_13_mini"
       }
+    },
+    {
+      "id": "iphone-17-pro",
+      "enabled": true,
+      "name": "iPhone 17 Pro",
+      "maker": "Apple",
+      "logos": {
+        "maker": "apple",
+        "os": "ios"
+      },
+      "os": {
+        "name": "iOS",
+        "version": "26"
+      },
+      "color": {
+        "name": "Deep Blue",
+        "hex": "#2B3A55"
+      },
+      "owned": {
+        "from": "2026",
+        "to": null,
+        "label": "2026",
+        "range": "2026 – now"
+      },
+      "form": "slab",
+      "dimensionsMm": {
+        "w": 71.9,
+        "h": 150.0,
+        "d": 8.75
+      },
+      "screenInches": 6.3,
+      "look": {
+        "backLayout": "iphone17pro",
+        "model": "models/iphone17pro.glb",
+        "modelCredit": {
+          "title": "Iphone 17 Pro",
+          "author": "PikkmeStudios",
+          "url": "https://sketchfab.com/3d-models/iphone-17-pro-167a66e5613d4566921cfc29b3fc9198",
+          "license": "CC BY 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      },
+      "specs": {
+        "processor": {
+          "cores": 6,
+          "ghz": 4.26,
+          "coresGhz": 18.92,
+          "label": "6 cores · 4.26 GHz",
+          "chip": "A19 Pro"
+        },
+        "cameraMp": 48,
+        "cameraLabel": "48 MP ×3",
+        "ramMb": 12288,
+        "storageMb": 262144,
+        "cardMb": null,
+        "batteryMah": 3998
+      },
+      "teardown": {
+        "openFrom": "front",
+        "parts": [
+          {
+            "id": "board",
+            "kind": "board",
+            "u": 0.04,
+            "v": 0.74,
+            "w": 0.56,
+            "h": 0.235
+          },
+          {
+            "id": "processor",
+            "kind": "chip",
+            "u": 0.12,
+            "v": 0.8,
+            "w": 0.26,
+            "h": 0.13
+          },
+          {
+            "id": "camera",
+            "kind": "camera",
+            "u": 0.6,
+            "v": 0.72,
+            "w": 0.37,
+            "h": 0.255
+          },
+          {
+            "id": "battery",
+            "kind": "battery",
+            "u": 0.06,
+            "v": 0.15,
+            "w": 0.88,
+            "h": 0.51
+          },
+          {
+            "id": "taptic",
+            "kind": "module",
+            "u": 0.06,
+            "v": 0.03,
+            "w": 0.3,
+            "h": 0.09
+          }
+        ]
+      },
+      "details": [
+        [
+          "Chip",
+          "A19 Pro (3 nm)"
+        ],
+        [
+          "CPU",
+          "6-core (2 × 4.26 GHz + 4 × 2.60 GHz)"
+        ],
+        [
+          "GPU",
+          "6-core"
+        ],
+        [
+          "RAM",
+          "12 GB"
+        ],
+        [
+          "Display",
+          "6.3″ Super Retina XDR OLED · 2622 × 1206 · 460 ppi · 120 Hz"
+        ],
+        [
+          "Front camera",
+          "18 MP"
+        ],
+        [
+          "Rear cameras",
+          "48 MP wide ƒ/1.8 + 48 MP ultra-wide ƒ/2.2 + 48 MP telephoto ƒ/2.8"
+        ],
+        [
+          "Battery",
+          "3998 mAh (nano-SIM model)"
+        ],
+        [
+          "Weight",
+          "206 g"
+        ],
+        [
+          "Size",
+          "150.0 × 71.9 × 8.75 mm"
+        ],
+        [
+          "Water resistance",
+          "IP68"
+        ],
+        [
+          "Released",
+          "19 September 2025"
+        ]
+      ],
+      "source": {
+        "name": "GSMArena",
+        "url": "https://www.gsmarena.com/apple_iphone_17_pro-14049.php"
+      }
     }
   ],
   "work": [
@@ -1387,10 +1543,5 @@
       }
     }
   ],
-  "next": {
-    "id": "next",
-    "name": "Next phone",
-    "label": "Next",
-    "standHeightMm": 150
-  }
+  "next": null
 }

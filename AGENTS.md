@@ -34,6 +34,8 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 | `src/scene/phone.js` | Procedural phone exteriors. Per-design tables: `BEZELS`, `CORNER`; functions `addFrontDetails`, `buildBackDetails`, `addButtons`. Exports shared helpers (`MM`, `slab`, `lens`, `logoMesh`, `mats`). |
 | `src/scene/slvr.js` | SLVR L7e exterior traced from its product photos (outline, front/back faces, chrome parts). |
 | `src/scene/karbonn.js` | Karbonn A7 body traced from its product photos: its own cross-section (glass, band, pebble back cover), faces and parts. Hooked in through `BODIES` in `phone.js`. |
+| `src/scene/modelPhone.js` | Loads a prepared `.glb` exterior (`look.model`) into a phone: `body` node → frame, `display` node → the lifting front. Used by the iPhone 17 Pro. |
+| `public/models/` | Prepared `.glb` files. `scripts/prepare-*.mjs` makes them from the downloaded model (kept in `reference/`). |
 | `src/scene/interior.js` | Procedural teardown interiors, one branch per `look.backLayout`, built in "viewer space". |
 | `src/scene/showroom.js` | Room (wood floor/walls), marble tables, stands, lights. |
 | `src/specs.js` | Spec comparison rows (linear bars vs previous phone, ▲/▼ jump badges). |
@@ -56,6 +58,8 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 - Interiors are modelled in code. iFixit photos may be used as a *layout reference* only; don't ship them in `public/`
   (keep references in the git-ignored `reference/` folder).
 - Canvas textures are drawn procedurally. Don't copy real product artwork; printed labels use our own wording.
+  Exception (owner's call): the iPhone 17 Pro uses a CC BY 4.0 Sketchfab model exactly as downloaded, texture included.
+  Credit for such models lives in `look.modelCredit` and shows in the page footer — keep it.
 - Brand marks come only from Simple Icons (`simple-icons` package).
 - Colour accuracy: phone glass/plastic uses the neutral `metalEnv` (see `neutralMetals` in `main.js`) so the wooden room
   doesn't tint the phones. Use `material.userData.envScale` / `keepEnv` rather than per-phone hacks.
@@ -70,7 +74,8 @@ and `state` for scripted checks. Look at screenshots of any visual change — co
 - Full 360° rotation when held and in the teardown view (drag only).
 - Arrow keys while holding a phone: first press shows a toast, second press (same direction, within 3 s) puts it back and moves on.
 - Analytics stays cookieless (no banner, `client_storage: 'none'`).
-- An empty stand after the newest phone is intentional (for the next phone).
+- An empty stand after the newest phone is intentional (for the next phone). It is on hold for now: `"next": null` in
+  `phones.json` removes it; put the `next` object back to bring it back.
 - Footer shows "Built by Rahul · rr2.dev". A short how-to-navigate note appears on first load and leaves by itself.
 - Mobile (≤ 900 px): phone list is one scrollable strip (with a "Work phones" chip), specs are a collapsible bottom sheet.
 

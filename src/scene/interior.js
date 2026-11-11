@@ -480,6 +480,75 @@ export function buildDetailedInterior(phone, W, H, D, side, cornerR = 5 * MM) {
     screw(0.7, 0.13, Z0 + 2.1 * MM, true); screw(0.94, 0.13, Z0 + 2.1 * MM, true);
 
 
+  } else if (layout === 'iphone17pro') {
+    // --- iPhone 17 Pro, display off (viewed from the front) ---
+    // board moved up under the camera plateau, so the battery fills most of the body below it
+    const [chipName, chipLine = ''] = (phone.specs?.processor?.chip ?? 'A19 Pro').split(' ');
+    const mah = phone.specs?.batteryMah ?? 3998;
+    const board = pcb(0.04, 0.74, 0.6, 0.975, 47);
+    const soc = R(0.12, 0.8, 0.38, 0.93);
+    box(soc, 0.7 * MM, M.chip, board.top, 0.2 * MM);
+    decal(soc, textDecal(soc.w / MM, soc.h / MM, (c, Wp, Hp) => {
+      c.fillStyle = '#E4E4E1';
+      c.font = `600 ${Wp * 0.2}px system-ui, sans-serif`;
+      c.fillText(chipName, Wp * 0.16, Hp * 0.45);
+      c.font = `500 ${Wp * 0.14}px system-ui, sans-serif`;
+      c.fillText(chipLine.toUpperCase(), Wp * 0.18, Hp * 0.64);
+      finePrint(c, Wp * 0.16, Hp * 0.76, Wp * 0.66, 2, Hp * 0.06, 'rgba(210,210,206,0.45)', rng(5));
+    }), board.top + 0.7 * MM);
+    shield(0.4, 0.78, 0.58, 0.95, 0.45 * MM, { holes: 0, seed: 48, dark: true });
+    for (let i = 0; i < 3; i++) connector(0.08 + i * 0.16, 0.75, 0.18 + i * 0.16, 0.775, board.top);
+    screw(0.07, 0.95, board.top); screw(0.56, 0.95, board.top); screw(0.07, 0.77, board.top);
+
+    // the three 48 MP cameras sit behind the board's right end (top left when seen from the back)
+    const cams = shield(0.6, 0.72, 0.97, 0.975, 0.4 * MM, { holes: 0, seed: 49, z: Z0 + 0.4 * MM });
+    camera(0.7, 0.92, 8.5, Z0 + Math.min(room, 2.6 * MM));
+    camera(0.7, 0.79, 8.5, Z0 + Math.min(room, 2.6 * MM));
+    camera(0.88, 0.855, 8.5, Z0 + Math.min(room, 2.6 * MM));
+    screw(0.95, 0.74, cams.top, true);
+    // front camera and Face ID along the top edge, in the island's place
+    camera(0.5, 0.955, 3.5, Z0 + 1.8 * MM);
+    flex([[0.3, 0.74, 1.4], [0.32, 0.7, 1.6], [0.36, 0.69, 1.4]], 4, M.flexBlack);
+    connector(0.32, 0.665, 0.42, 0.69, Z0 + 0.8 * MM);
+
+    // battery: one big rectangular pack below the board
+    const br = partRect('battery') ?? R(0.06, 0.15, 0.94, 0.66);
+    makeBattery(br, (c, Wp, Hp) => {
+      c.fillStyle = '#131416'; c.fillRect(0, 0, Wp, Hp);
+      const u = Wp / 100;
+      c.fillStyle = '#DCDCD9';
+      c.font = `500 ${3.2 * u}px system-ui, sans-serif`;
+      c.fillText('Rechargeable Li-ion Battery', 9 * u, Hp * 0.8);
+      c.fillText(`${mah} mAh`, 9 * u, Hp * 0.8 + 4.5 * u);
+      finePrint(c, 9 * u, Hp * 0.8 + 8 * u, 82 * u, 4, 3.6 * u, 'rgba(220,220,216,0.32)', rng(51));
+    }, (b, t) => {
+      const logo = logoMesh('apple', 6 * MM, new THREE.MeshStandardMaterial({ color: '#DCDCD9', roughness: 0.5 }));
+      logo.scale.x *= -1; // read from the front, not from behind
+      logo.position.set(-br.w * 0.32, br.h * 0.18, t / 2 + 0.06 * MM);
+      b.add(logo);
+      for (const sx of [-0.28, 0.28]) {
+        const tab = new THREE.Mesh(new THREE.PlaneGeometry(br.w * 0.16, 4 * MM), M.flexBlack);
+        tab.position.set(sx * br.w, -br.h / 2 - 1.4 * MM, -t / 2 + 0.1 * MM);
+        b.add(tab);
+      }
+    });
+
+    // bottom: Taptic Engine left, loudspeaker right, USB-C between them
+    const tap = R(0.06, 0.03, 0.36, 0.12);
+    box(tap, 2.0 * MM, M.plastic, Z0, 0.5 * MM);
+    decal(tap, textDecal(tap.w / MM, tap.h / MM, (c, Wp, Hp) => {
+      c.fillStyle = '#E8E8E4';
+      c.font = `700 ${Hp * 0.24}px system-ui, sans-serif`;
+      c.fillText('TAPTIC', Wp * 0.2, Hp * 0.46);
+      c.fillText('ENGINE', Wp * 0.2, Hp * 0.76);
+    }), Z0 + 2.0 * MM);
+    box(R(0.4, 0.015, 0.6, 0.07), 1.4 * MM, M.shield, Z0, 0.4 * MM);
+    const spk = R(0.64, 0.02, 0.95, 0.12);
+    box(spk, 2.1 * MM, M.shieldDark, Z0, 0.5 * MM);
+    decal(R(0.67, 0.035, 0.92, 0.105), grilleTexture(0.25 * IW / MM, 0.07 * IH / MM), Z0 + 2.1 * MM, { transparent: false, rough: 0.8 });
+    flex([[0.38, 0.12, 1.0], [0.5, 0.14, 1.0], [0.64, 0.12, 1.0]], 2.5, M.flexBlack);
+    screw(0.66, 0.11, Z0 + 2.1 * MM, true); screw(0.93, 0.11, Z0 + 2.1 * MM, true);
+
   } else if (layout === 'iphone6p' || layout === 'iphone7p') {
     // --- iPhone 6 Plus / 7 Plus, display off (viewed from the front) ---
     // logic board down the right edge, big battery on the left, Lightning + speaker at the bottom
